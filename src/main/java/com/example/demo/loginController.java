@@ -1,6 +1,5 @@
 package com.example.demo;
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 
@@ -15,7 +14,7 @@ import javafx.scene.Node;
 
 import java.io.IOException;
 
-public class HelloController {
+public class loginController {
 
     private final String userName = "ajenkeÇakan";
     private final int pass = 31;
@@ -28,7 +27,7 @@ public class HelloController {
     @FXML
     private TextField userField;
     public void tryLogin(ActionEvent event) throws IOException {
-        if(userField.getText().equals(userName) && Integer.parseInt(passField.getText()) == pass){
+        if (userField.getText().equals(userName) && Integer.parseInt(passField.getText()) == pass) {
             Parent home_page = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
             Scene hp_scene = new Scene(home_page);
             Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
@@ -37,6 +36,14 @@ public class HelloController {
         }
 
 
-
-            }
     }
+
+    public void goToSign(ActionEvent event) throws IOException {
+        Parent home_page = FXMLLoader.load(getClass().getResource("signPage.fxml"));
+        Scene hp_scene = new Scene(home_page);
+        Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+        app_stage.setScene(hp_scene);
+        app_stage.show();
+    }
+
+}

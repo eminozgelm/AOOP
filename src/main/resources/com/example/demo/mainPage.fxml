@@ -5,7 +5,7 @@
 <?import javafx.scene.text.Font?>
 
 
-<AnchorPane prefHeight="518.0" prefWidth="718.0" style="-fx-border-radius: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.HelloController">
+<AnchorPane prefHeight="518.0" prefWidth="718.0" style="-fx-border-radius: 30;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.loginController">
    <children>
       <TextArea layoutX="53.0" layoutY="160.0" prefHeight="150.0" prefWidth="635.0" style="-fx-region-border: none;" text="  HOŞGELDİNİZ BAYLAR..." wrapText="true" AnchorPane.bottomAnchor="208.0" AnchorPane.leftAnchor="53.0" AnchorPane.rightAnchor="30.0" AnchorPane.topAnchor="160.0">
          <font>
