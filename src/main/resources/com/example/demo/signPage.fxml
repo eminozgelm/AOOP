@@ -43,20 +43,30 @@
             <Font name="MS Reference Sans Serif" size="14.0" />
          </font>
       </Text>
-      <TextField fx:id="userField111" layoutX="412.0" layoutY="451.0" style="-fx-background-radius: 50; -fx-padding: 10;">
+      <TextField fx:id="userField111" layoutX="412.0" layoutY="536.0" style="-fx-background-radius: 50; -fx-padding: 10;">
          <font>
             <Font name="MS Reference Sans Serif" size="12.0" />
          </font>
       </TextField>
-      <Text fill="WHITE" layoutX="420.0" layoutY="435.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Password (6 or more characters)" wrappingWidth="266.9189453125">
+      <Text fill="WHITE" layoutX="412.0" layoutY="522.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Password (6 or more characters)" wrappingWidth="266.9189453125">
          <font>
             <Font name="MS Reference Sans Serif" size="14.0" />
          </font>
       </Text>
-      <Button layoutX="471.0" layoutY="548.0" mnemonicParsing="false" text="JOIN " />
+      <Button layoutX="471.0" layoutY="597.0" mnemonicParsing="false" text="JOIN " />
       <Button fx:id="back" layoutX="89.0" layoutY="29.0" mnemonicParsing="false" onAction="#goBack" style="-fx-content-display: left; -fx-background-color: transparent;">
          <font>
             <Font name="MS Reference Sans Serif" size="15.0" />
          </font></Button>
+      <TextField fx:id="userField1111" layoutX="412.0" layoutY="442.0" style="-fx-background-radius: 50; -fx-padding: 10;">
+         <font>
+            <Font name="MS Reference Sans Serif" size="12.0" />
+         </font>
+      </TextField>
+      <Text fill="WHITE" layoutX="420.0" layoutY="429.0" strokeType="OUTSIDE" strokeWidth="0.0" text="User name">
+         <font>
+            <Font name="MS Reference Sans Serif" size="14.0" />
+         </font>
+      </Text>
    </children>
 </AnchorPane>
