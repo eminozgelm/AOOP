@@ -54,6 +54,9 @@
          </font>
       </Text>
       <Button layoutX="471.0" layoutY="548.0" mnemonicParsing="false" text="JOIN " />
-      <Button fx:id="back" layoutX="52.0" layoutY="22.0" mnemonicParsing="false" onAction="#goBack" text="Back" />
+      <Button fx:id="back" layoutX="89.0" layoutY="29.0" mnemonicParsing="false" onAction="#goBack" style="-fx-content-display: left; -fx-background-color: transparent;">
+         <font>
+            <Font name="MS Reference Sans Serif" size="15.0" />
+         </font></Button>
    </children>
 </AnchorPane>

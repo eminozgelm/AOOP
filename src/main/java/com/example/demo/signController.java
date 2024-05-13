@@ -19,7 +19,15 @@ public class signController {
     private Button back;
 
 
-
+    public void initialize (){
+        ImageView imageView = new ImageView(getClass().getResource("/img/134226-48.png").toExternalForm());
+        // Set the size of the ImageView (resize the icon)
+        double desiredIconSize = 48; // Change this to your desired size
+        imageView.setFitWidth(desiredIconSize);
+        imageView.setFitHeight(desiredIconSize);
+        back.setGraphic(imageView);
+        back.setStyle("-fx-background-color: transparent; ");
+    }
 
 
 
