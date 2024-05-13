@@ -8,12 +8,12 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="1000.0" style="-fx-background-color: #0066ff;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.signController">
    <children>
-      <TextField fx:id="userField" layoutX="412.0" layoutY="143.0" style="-fx-background-radius: 50; -fx-padding: 10;">
+      <TextField fx:id="nameField" layoutX="412.0" layoutY="143.0" style="-fx-background-radius: 50; -fx-padding: 10;">
          <font>
             <Font name="MS Reference Sans Serif" size="12.0" />
          </font>
       </TextField>
-      <TextField fx:id="userField1" layoutX="412.0" layoutY="241.0" style="-fx-background-radius: 50; -fx-padding: 10;">
+      <TextField fx:id="lastnameField" layoutX="412.0" layoutY="241.0" style="-fx-background-radius: 50; -fx-padding: 10;">
          <font>
             <Font name="MS Reference Sans Serif" size="12.0" />
          </font>
@@ -23,7 +23,7 @@
             <Font name="MS Reference Sans Serif" size="24.0" />
          </font>
       </Text>
-      <TextField fx:id="userField11" layoutX="412.0" layoutY="346.0" style="-fx-background-radius: 50; -fx-padding: 10;">
+      <TextField fx:id="emailField" layoutX="412.0" layoutY="346.0" style="-fx-background-radius: 50; -fx-padding: 10;">
          <font>
             <Font name="MS Reference Sans Serif" size="12.0" />
          </font>
@@ -43,7 +43,7 @@
             <Font name="MS Reference Sans Serif" size="14.0" />
          </font>
       </Text>
-      <TextField fx:id="userField111" layoutX="412.0" layoutY="536.0" style="-fx-background-radius: 50; -fx-padding: 10;">
+      <TextField fx:id="pwField" layoutX="412.0" layoutY="536.0" style="-fx-background-radius: 50; -fx-padding: 10;">
          <font>
             <Font name="MS Reference Sans Serif" size="12.0" />
          </font>
@@ -53,12 +53,12 @@
             <Font name="MS Reference Sans Serif" size="14.0" />
          </font>
       </Text>
-      <Button layoutX="471.0" layoutY="597.0" mnemonicParsing="false" text="JOIN " />
+      <Button fx:id="joinButton" layoutX="471.0" layoutY="597.0" mnemonicParsing="false" onMouseClicked="#join" text="JOIN " />
       <Button fx:id="back" layoutX="89.0" layoutY="29.0" mnemonicParsing="false" onAction="#goBack" style="-fx-content-display: left; -fx-background-color: transparent;">
          <font>
             <Font name="MS Reference Sans Serif" size="15.0" />
          </font></Button>
-      <TextField fx:id="userField1111" layoutX="412.0" layoutY="442.0" style="-fx-background-radius: 50; -fx-padding: 10;">
+      <TextField fx:id="usernameField" layoutX="412.0" layoutY="442.0" style="-fx-background-radius: 50; -fx-padding: 10;">
          <font>
             <Font name="MS Reference Sans Serif" size="12.0" />
          </font>
