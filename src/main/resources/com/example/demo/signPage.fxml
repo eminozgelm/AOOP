@@ -53,7 +53,7 @@
             <Font name="MS Reference Sans Serif" size="14.0" />
          </font>
       </Text>
-      <Button fx:id="joinButton" layoutX="471.0" layoutY="597.0" mnemonicParsing="false" onMouseClicked="#join" text="JOIN " />
+      <Button fx:id="joinButton" layoutX="471.0" layoutY="597.0" mnemonicParsing="false" onAction="#join" onMouseClicked="#join" text="JOIN " />
       <Button fx:id="back" layoutX="89.0" layoutY="29.0" mnemonicParsing="false" onAction="#goBack" style="-fx-content-display: left; -fx-background-color: transparent;">
          <font>
             <Font name="MS Reference Sans Serif" size="15.0" />

@@ -87,7 +87,7 @@ public class Dbase {
         Connection conn = connect();
         if (conn != null) {
             // Step 1: Create the users table if it doesn't exist
-            createUsersTable(conn);
+            //createUsersTable(conn);
 
             // Step 2: Insert sample users with friend connections
             insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", List.of(2, 3));

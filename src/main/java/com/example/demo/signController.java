@@ -12,6 +12,10 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.util.Collections;
+import java.util.List;
+
 
 public class signController {
 
@@ -59,15 +63,29 @@ public class signController {
 
 
     public void join(ActionEvent event) throws IOException {
-        String  name = nameField.getText();
-        String  lastName = lastnameField.getText();
-        String  username = usernameField.getText();
-        String  password = pwField.getText();
-        String  email = emailField.getText();
+        String name = nameField.getText();
+        String lastName = lastnameField.getText();
+        String username = usernameField.getText();
+        String password = pwField.getText();
+        String email = emailField.getText();
 
-        System.out.println(name + " " + lastName + " " + username+ " " +password+ " " +email);
-        //TODO DATABASEYE YAZCANIZ
+        System.out.println(name + " " + lastName + " " + username + " " + password + " " + email);
+
+        // Insert the user into the database
+        Connection conn = Dbase.connect();
+        if (conn != null) {
+
+            Dbase.insertUser(conn, username, email, password, name, lastName, "", List.of(0));
+            System.out.println("ADDED USER");
+            try {
+                conn.close();
+            } catch (Exception e) {
+                System.err.println("Error closing connection: " + e.getMessage());
+            }
+
+
+
+        }
 
     }
-
 }
