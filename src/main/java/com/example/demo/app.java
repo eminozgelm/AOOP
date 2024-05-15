@@ -15,7 +15,7 @@ public class app extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Connection db = Dbase.connect();
-        FXMLLoader fxmlLoader = new FXMLLoader(app.class.getResource("hello-view.fxml"));
+        FXMLLoader fxmlLoader = new FXMLLoader(app.class.getResource("login.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1000, 650);
 
         stage.setTitle("Hello!");
