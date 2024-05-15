@@ -5,7 +5,6 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
@@ -78,9 +77,9 @@
                         </Label>
                      </children>
                   </Pane>
-                  <ScrollPane prefHeight="364.0" prefWidth="671.0">
+                  <ScrollPane fx:id="scrollPane" prefHeight="359.0" prefWidth="671.0">
                      <content>
-                        <ScrollBar orientation="VERTICAL" prefHeight="361.0" prefWidth="14.0" />
+                        <VBox fx:id="postContainer" prefHeight="357.0" prefWidth="667.0" />
                      </content>
                   </ScrollPane>
                </children>
