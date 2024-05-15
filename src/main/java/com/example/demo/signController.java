@@ -42,7 +42,7 @@ public class signController {
     private TextField usernameField;
 
     public void initialize() {
-        ImageView imageView = new ImageView(getClass().getResource("/img/134226-48.png").toExternalForm());
+        ImageView imageView = new ImageView(getClass().getResource("/img/211618_c_left_arrow_icon.png").toExternalForm());
         // Set the size of the ImageView (resize the icon)
         double desiredIconSize = 48; // Change this to your desired size
         imageView.setFitWidth(desiredIconSize);

@@ -17,6 +17,7 @@ public class app extends Application {
         Connection db = Dbase.connect();
         FXMLLoader fxmlLoader = new FXMLLoader(app.class.getResource("hello-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1000, 650);
+
         stage.setTitle("Hello!");
         stage.setScene(scene);
         //stage.setMinHeight(650);
