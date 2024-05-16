@@ -42,7 +42,7 @@ public class signController {
     private TextField usernameField;
 
     public void initialize() {
-        ImageView imageView = new ImageView(getClass().getResource("/img/134226-48.png").toExternalForm());
+        ImageView imageView = new ImageView(getClass().getResource("/img/211618_c_left_arrow_icon.png").toExternalForm());
         // Set the size of the ImageView (resize the icon)
         double desiredIconSize = 48; // Change this to your desired size
         imageView.setFitWidth(desiredIconSize);
@@ -54,7 +54,7 @@ public class signController {
 
     public void goBack(ActionEvent event) throws IOException {
 
-        Parent home_page = FXMLLoader.load(getClass().getResource("hello-view.fxml"));
+        Parent home_page = FXMLLoader.load(getClass().getResource("login.fxml"));
         Scene hp_scene = new Scene(home_page);
         Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
         app_stage.setScene(hp_scene);
