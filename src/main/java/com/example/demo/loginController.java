@@ -17,7 +17,7 @@ import java.io.IOException;
 public class loginController {
 
     private final String userName = "ajenkeÇakan";
-    private final int pass = 31;
+    private final String pass = "31";
     @FXML
     private Button button;
 
@@ -27,7 +27,11 @@ public class loginController {
     @FXML
     private TextField userField;
     public void tryLogin(ActionEvent event) throws IOException {
-        if (userField.getText().equals(userName) && Integer.parseInt(passField.getText()) == pass) {
+        String username = userField.getText();
+        String pw = passField.getText();
+
+
+        if (Dbase.tryLoginDB(Dbase.connect(),username,pw)) {
             Parent home_page = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
             Scene hp_scene = new Scene(home_page);
             Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();

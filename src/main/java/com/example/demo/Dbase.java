@@ -83,6 +83,34 @@ public class Dbase {
         }
     }
 
+
+    public static boolean tryLoginDB(Connection conn, String username, String password) {
+        String query = "SELECT password_hash FROM users WHERE username = ?";
+        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String storedPasswordHash = resultSet.getString("password_hash");
+                // Compare stored password hash with the provided password
+                if (storedPasswordHash.equals(password)) { // In real applications, use a proper password hashing mechanism
+                    System.out.println("Login successful.");
+                    return true;
+                } else {
+                    System.out.println("Invalid password.");
+                }
+            } else {
+                System.out.println("Username not found.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+        return false;
+    }
+
+
+
+
     public static void main(String[] args) {
         Connection conn = connect();
         if (conn != null) {
