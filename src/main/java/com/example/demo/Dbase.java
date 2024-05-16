@@ -22,6 +22,38 @@ public class Dbase {
         return conn;
     }
 
+    public static boolean authenticateUser(Connection conn, String username, String password) {
+        boolean isAuthenticated = false;
+        try {
+            String selectUserSQL = "SELECT password_hash FROM users WHERE username = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(selectUserSQL);
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String storedPasswordHash = resultSet.getString("password_hash");
+                // You should use a secure password verification method here, like bcrypt
+                // For simplicity, this example uses direct comparison (not recommended for production)
+                if (storedPasswordHash.equals(password)) {
+                    isAuthenticated = true;
+                    System.out.println("User authenticated successfully.");
+                } else {
+                    System.out.println("Authentication failed: Incorrect password.");
+                }
+            } else {
+                System.out.println("Authentication failed: User not found.");
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+        return isAuthenticated;
+    }
+
+
+
     // Creating the users table if it doesn't exist
     public static void createUsersTable(Connection conn) {
         try {
@@ -82,34 +114,6 @@ public class Dbase {
             System.err.println("Error: " + e.getMessage());
         }
     }
-
-
-    public static boolean tryLoginDB(Connection conn, String username, String password) {
-        String query = "SELECT password_hash FROM users WHERE username = ?";
-        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
-            preparedStatement.setString(1, username);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                String storedPasswordHash = resultSet.getString("password_hash");
-                // Compare stored password hash with the provided password
-                if (storedPasswordHash.equals(password)) { // In real applications, use a proper password hashing mechanism
-                    System.out.println("Login successful.");
-                    return true;
-                } else {
-                    System.out.println("Invalid password.");
-                }
-            } else {
-                System.out.println("Username not found.");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error: " + e.getMessage());
-        }
-        return false;
-    }
-
-
-
 
     public static void main(String[] args) {
         Connection conn = connect();
