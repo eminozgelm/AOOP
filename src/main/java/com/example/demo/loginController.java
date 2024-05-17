@@ -38,10 +38,12 @@ public class loginController {
 
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             // Attempt to authenticate the user
-            boolean isAuthenticated = Dbase.authenticateUser(conn, userName, passWord);
+            int userID = Dbase.authenticateUser(conn, userName, passWord);
+            UserSession us = UserSession.getInstance();
+            us.setUserId(userID);
 
             // Display appropriate message based on authentication result
-            if (isAuthenticated) {
+            if (userID > 0) {
                 Parent home_page = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
                 Scene hp_scene = new Scene(home_page);
                 Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();

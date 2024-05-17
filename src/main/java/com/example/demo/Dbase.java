@@ -22,10 +22,10 @@ public class Dbase {
         return conn;
     }
 
-    public static boolean authenticateUser(Connection conn, String username, String password) {
-        boolean isAuthenticated = false;
+    public static int authenticateUser(Connection conn, String username, String password) {
+        int userId = -1;
         try {
-            String selectUserSQL = "SELECT password_hash FROM users WHERE username = ?";
+            String selectUserSQL = "SELECT user_id, password_hash FROM users WHERE username = ?";
             PreparedStatement preparedStatement = conn.prepareStatement(selectUserSQL);
             preparedStatement.setString(1, username);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -35,8 +35,8 @@ public class Dbase {
                 // You should use a secure password verification method here, like bcrypt
                 // For simplicity, this example uses direct comparison (not recommended for production)
                 if (storedPasswordHash.equals(password)) {
-                    isAuthenticated = true;
-                    System.out.println("User authenticated successfully.");
+                    userId = resultSet.getInt("user_id");
+                    System.out.println("User authenticated successfully. User ID: " + userId);
                 } else {
                     System.out.println("Authentication failed: Incorrect password.");
                 }
@@ -49,7 +49,7 @@ public class Dbase {
         } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
-        return isAuthenticated;
+        return userId;
     }
 
 
