@@ -2,9 +2,9 @@ package com.example.demo;
 
 public class UserSession {
     private static UserSession instance;
-    private int userId;
+    public int userId;
 
-    private UserSession() {
+    public UserSession() {
         // Private constructor to prevent instantiation
     }
 

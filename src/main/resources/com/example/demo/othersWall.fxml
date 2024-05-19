@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.paint.Color?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.mainController">
+   <children>
+      <MenuBar VBox.vgrow="NEVER">
+         <menus>
+            <Menu mnemonicParsing="false" text="My Profile">
+               <items>
+                  <MenuItem fx:id="item1" mnemonicParsing="false" text="Go to Profile..." />
+                  <MenuItem fx:id="item2" mnemonicParsing="false" onAction="#returnFeed" text="Go to Feed..." />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Settings">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Undo" />
+                  <MenuItem mnemonicParsing="false" text="Redo" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Cut" />
+                  <MenuItem mnemonicParsing="false" text="Copy" />
+                  <MenuItem mnemonicParsing="false" text="Paste" />
+                  <MenuItem mnemonicParsing="false" text="Delete" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" text="Select All" />
+                  <MenuItem mnemonicParsing="false" text="Unselect All" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+      <SplitPane dividerPositions="0.5" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+         <items>
+            <AnchorPane maxWidth="221.0" minWidth="100.0" prefHeight="551.0" prefWidth="290.0">
+               <children>
+                  <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Friends" textAlignment="CENTER" wrapText="false">
+                     <font>
+                        <Font size="18.0" fx:id="x1" />
+                     </font>
+                     <textFill>
+                        <Color red="0.624" green="0.624" blue="0.624" fx:id="x2" />
+                     </textFill>
+                  </Label>
+               </children>
+            </AnchorPane>
+            <VBox prefHeight="551.0" prefWidth="579.0">
+               <children>
+                  <Pane prefHeight="189.0" prefWidth="671.0">
+                     <children>
+                        <ImageView fitHeight="165.0" fitWidth="168.0" layoutX="14.0" layoutY="8.0" pickOnBounds="true" smooth="false">
+                           <image>
+                              <Image url="@../../../img/indir.png" />
+                           </image>
+                           <effect>
+                              <Glow />
+                           </effect>
+                        </ImageView>
+                        <Label fx:id="activeUserName" layoutX="201.0" layoutY="34.0" prefHeight="35.0" prefWidth="457.0" text="userName">
+                           <font>
+                              <Font name="MS Reference Sans Serif" size="24.0" />
+                           </font>
+                        </Label>
+                        <Label fx:id="profileName" layoutX="201.0" layoutY="94.0" prefHeight="17.0" prefWidth="304.0" text="nameANDsurname" />
+                        <TextArea fx:id="bio" editable="false" layoutX="201.0" layoutY="124.0" prefHeight="49.0" prefWidth="391.0" text="bio" />
+                        <Button fx:id="changeBioButton" layoutX="515.0" layoutY="90.0" mnemonicParsing="false" text="Change Bio" />
+                     </children>
+                  </Pane>
+                  <ScrollPane prefHeight="364.0" prefWidth="671.0">
+                     <content>
+                        <AnchorPane prefHeight="359.0" prefWidth="665.0">
+                           <children>
+                              <VBox prefHeight="354.0" prefWidth="658.0" />
+                           </children>
+                        </AnchorPane>
+                     </content>
+                  </ScrollPane>
+               </children>
+            </VBox>
+         </items>
+      </SplitPane>
+      <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
+         <children>
+            <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
+               <font>
+                  <Font size="11.0" fx:id="x3" />
+               </font>
+               <textFill>
+                  <Color red="0.625" green="0.625" blue="0.625" fx:id="x4" />
+               </textFill>
+            </Label>
+            <Pane prefHeight="-1.0" prefWidth="-1.0" HBox.hgrow="ALWAYS" />
+            <Label font="$x3" maxWidth="-1.0" text="Right status" textFill="$x4" HBox.hgrow="NEVER" />
+         </children>
+         <padding>
+            <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+         </padding>
+      </HBox>
+   </children>
+</VBox>

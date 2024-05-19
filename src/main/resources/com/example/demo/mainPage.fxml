@@ -41,6 +41,8 @@
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -74,9 +76,9 @@
             </Menu>
          </menus>
       </MenuBar>
-      <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+      <SplitPane fx:id="splitPane" dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
          <items>
-            <AnchorPane>
+            <AnchorPane fx:id="leftPane">
                <children>
                   <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Friends" textAlignment="CENTER" wrapText="false">
                      <font>
@@ -86,14 +88,26 @@
                         <Color red="0.624" green="0.624" blue="0.624" fx:id="x2" />
                      </textFill>
                   </Label>
+                  <Button fx:id="postButton" layoutX="178.0" layoutY="3.0" mnemonicParsing="false" onAction="#openPostWindow" text="Post" textAlignment="RIGHT" />
                </children>
             </AnchorPane>
             <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
                <content>
                   <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
                      <children>
-                        <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" prefHeight="27.0" prefWidth="99.0" style="&#10;" text="Rednit" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                        <Button layoutX="28.0" layoutY="58.0" mnemonicParsing="false" onAction="#openPostWindow" text="Post" />
+                        <VBox fx:id="postContainer" prefHeight="545.0" prefWidth="443.0">
+                           <children>
+                              <TitledPane animated="false" text="untitled">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <TextArea layoutX="-1.0" layoutY="1.0" prefHeight="187.0" prefWidth="443.0" text="fwefwefwefwegjweıgjwıgjweıg" />
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </TitledPane>
+                           </children>
+                        </VBox>
                      </children>
                   </AnchorPane>
                </content>

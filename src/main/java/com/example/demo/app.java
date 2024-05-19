@@ -15,6 +15,8 @@ public class app extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         Connection db = Dbase.connect();
+        System.setProperty("prism.lcdtext", "true"); // Enable LCD text rendering
+        System.setProperty("prism.text", "t2k"); // Use the t2k text rendering engine
         FXMLLoader fxmlLoader = new FXMLLoader(app.class.getResource("login.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 1000, 650);
 

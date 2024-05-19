@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.effect.Glow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -19,13 +20,13 @@
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.mainController">
+<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.wallController">
    <children>
       <MenuBar VBox.vgrow="NEVER">
          <menus>
             <Menu mnemonicParsing="false" text="My Profile">
                <items>
-                  <MenuItem fx:id="item1" mnemonicParsing="false" text="Go to Profile..." />
+                  <MenuItem fx:id="item1" mnemonicParsing="false" onAction="#goToProfile" text="Go to Profile..." />
                   <MenuItem fx:id="item2" mnemonicParsing="false" onAction="#returnFeed" text="Go to Feed..." />
                </items>
             </Menu>
@@ -71,16 +72,23 @@
                               <Glow />
                            </effect>
                         </ImageView>
-                        <Label layoutX="201.0" layoutY="34.0" prefHeight="35.0" prefWidth="457.0" text="ajenkeÇakan">
+                        <Label fx:id="activeUserName" layoutX="201.0" layoutY="34.0" prefHeight="35.0" prefWidth="457.0">
                            <font>
                               <Font name="MS Reference Sans Serif" size="24.0" />
                            </font>
                         </Label>
+                        <Label fx:id="profileName" layoutX="201.0" layoutY="94.0" prefHeight="17.0" prefWidth="304.0" text="Label" />
+                        <TextArea fx:id="bio" editable="false" layoutX="201.0" layoutY="124.0" prefHeight="49.0" prefWidth="391.0" />
+                        <Button fx:id="changeBioButton" layoutX="515.0" layoutY="90.0" mnemonicParsing="false" text="Change Bio" />
                      </children>
                   </Pane>
                   <ScrollPane prefHeight="364.0" prefWidth="671.0">
                      <content>
-                        <ScrollBar orientation="VERTICAL" prefHeight="361.0" prefWidth="14.0" />
+                        <AnchorPane prefHeight="359.0" prefWidth="665.0">
+                           <children>
+                              <VBox fx:id="postContainer" prefHeight="354.0" prefWidth="658.0" />
+                           </children>
+                        </AnchorPane>
                      </content>
                   </ScrollPane>
                </children>
