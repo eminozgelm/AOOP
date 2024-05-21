@@ -14,6 +14,8 @@ public class User {
 
     private int[] friendsArray;
 
+    boolean isHidden;
+
     public User(String username, String password, String firstName, String lastName, String[] profileInfos, int[] friendsArray) {
         this.username = username;
         this.password = password;
@@ -74,7 +76,13 @@ public class User {
         this.lastName = lastName;
     }
 
+    public boolean isHidden() {
+        return isHidden;
+    }
 
+    public void setHidden(boolean hidden) {
+        isHidden = hidden;
+    }
 
     public int[] getFriendsArray() {
         return friendsArray;
@@ -83,6 +91,7 @@ public class User {
     public void setFriendsArray(int[] friendsArray) {
         this.friendsArray = friendsArray;
     }
+
 
 
 }
