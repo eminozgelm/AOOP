@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
@@ -26,6 +27,7 @@ public class loginController {
     private Text errorText;
     @FXML
     private Button button;
+
 
     @FXML
     private PasswordField passField;
@@ -49,6 +51,7 @@ public class loginController {
                 Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                 app_stage.setScene(hp_scene);
                 app_stage.show();
+
             } else {
                 errorText.setText("Invalid username or password.");
                 errorText.setStyle("-fx-text-fill: red;");
