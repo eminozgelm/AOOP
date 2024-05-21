@@ -23,6 +23,7 @@ public class wallController implements Initializable {
     @FXML
     private Label profileName;
 
+    private boolean isEditable = false;
     @FXML
     private TextArea bio;
 
@@ -53,6 +54,53 @@ public class wallController implements Initializable {
         // Load posts from the database
         loadPostsFromDatabase();
         loadUserBio();
+    }
+
+
+    @FXML
+    private void handleEditButton() {
+        if (isEditable) {
+            // Save the text to the database
+            changeBio(bio.getText());
+            bio.setEditable(false);
+            changeBioButton.setText("Change Bio");
+        } else {
+            bio.setEditable(true);
+            changeBioButton.setText("Save");
+        }
+        isEditable = !isEditable;
+    }
+    @FXML
+    private void changeBio(String profileInfo)
+    {
+        String query = "UPDATE users SET profile_info = ? WHERE user_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+
+            preparedStatement.setString(1, profileInfo);
+            preparedStatement.setInt(2, user.userId);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Profile info updated successfully.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to update profile info.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating profile info.");
+        }
+        return;
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String content) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     private void loadUserBio(){

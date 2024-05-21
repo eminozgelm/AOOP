@@ -79,7 +79,7 @@
                         </Label>
                         <Label fx:id="profileName" layoutX="201.0" layoutY="94.0" prefHeight="17.0" prefWidth="304.0" wrapText="true" />
                         <TextArea fx:id="bio" editable="false" layoutX="201.0" layoutY="124.0" prefHeight="49.0" prefWidth="391.0" />
-                        <Button fx:id="changeBioButton" layoutX="515.0" layoutY="90.0" mnemonicParsing="false" text="Change Bio" />
+                        <Button fx:id="changeBioButton" layoutX="515.0" layoutY="90.0" mnemonicParsing="false" onAction="#handleEditButton" text="Change Bio" />
                      </children>
                   </Pane>
                   <ScrollPane prefHeight="364.0" prefWidth="671.0">
