@@ -1,14 +1,13 @@
 package com.example.demo;
 
-import java.sql.*;
-import java.util.List;
-
-
-import java.sql.*;
-import java.util.List;
 import com.google.gson.Gson;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Dbase {
+    // Static list to hold users
+    private static List<User> usersList = new ArrayList<>();
 
     // Establishing a connection to the SQLite database
     public static Connection connect() {
@@ -52,8 +51,6 @@ public class Dbase {
         return userId;
     }
 
-
-
     // Creating the users table if it doesn't exist
     public static void createUsersTable(Connection conn) {
         try {
@@ -66,7 +63,8 @@ public class Dbase {
                     + "first_name TEXT,"
                     + "last_name TEXT,"
                     + "profile_info TEXT,"
-                    + "friend_list TEXT)";
+                    + "friend_list TEXT,"
+                    + "is_hidden INTEGER)";
             statement.executeUpdate(createUserTableSQL);
             statement.close();
         } catch (SQLException e) {
@@ -76,11 +74,11 @@ public class Dbase {
 
     // Inserting a user into the users table
     public static void insertUser(Connection conn, String username, String email, String passwordHash,
-                                  String firstName, String lastName, String profileInfo, List<Integer> friends) {
+                                  String firstName, String lastName, String profileInfo, List<Integer> friends, boolean isHidden) {
         try {
             String friendListJson = new Gson().toJson(friends); // Convert friend list to JSON
-            String insertUserSQL = "INSERT INTO users (username, email, password_hash, first_name, last_name, profile_info, friend_list) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String insertUserSQL = "INSERT INTO users (username, email, password_hash, first_name, last_name, profile_info, friend_list, is_hidden) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = conn.prepareStatement(insertUserSQL);
             preparedStatement.setString(1, username);
             preparedStatement.setString(2, email);
@@ -89,9 +87,16 @@ public class Dbase {
             preparedStatement.setString(5, lastName);
             preparedStatement.setString(6, profileInfo);
             preparedStatement.setString(7, friendListJson);
+            preparedStatement.setBoolean(8, isHidden);
             preparedStatement.executeUpdate();
             preparedStatement.close();
             System.out.println("User inserted successfully.");
+
+            // Add user to the usersList
+            User user = new User(username, passwordHash, firstName, lastName, profileInfo.split(","), friends.stream().mapToInt(i -> i).toArray());
+            user.setEmailAdress(email);
+            user.setHidden(isHidden);
+            usersList.add(user);
         } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
@@ -106,6 +111,8 @@ public class Dbase {
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("User removed successfully.");
+                // Remove user from usersList
+                usersList.removeIf(user -> user.getUsername().equals(username));
             } else {
                 System.out.println("No user found with username: " + username);
             }
@@ -115,18 +122,22 @@ public class Dbase {
         }
     }
 
+    public static List<User> getUsersList() {
+        return usersList;
+    }
+
     public static void main(String[] args) {
         Connection conn = connect();
         if (conn != null) {
             // Step 1: Create the users table if it doesn't exist
-            //createUsersTable(conn);
+            createUsersTable(conn);
 
             // Step 2: Insert sample users with friend connections
-            insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", List.of(2, 3));
-            insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", List.of(1, 3));
-            insertUser(conn, "user3", "user3@example.com", "password_hash_3", "Alice", "Johnson", "Graphic Designer", List.of(1, 2));
-            insertUser(conn, "user4", "user4@example.com", "password_hash_4", "Bob", "Johnson", "Accountant", List.of(5));
-            insertUser(conn, "user5", "user5@example.com", "password_hash_5", "Emily", "Brown", "Teacher", List.of(4));
+            insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", List.of(2, 3), false);
+            insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", List.of(1, 3), false);
+            insertUser(conn, "user3", "user3@example.com", "password_hash_3", "Alice", "Johnson", "Graphic Designer", List.of(1, 2), true);
+            insertUser(conn, "user4", "user4@example.com", "password_hash_4", "Bob", "Johnson", "Accountant", List.of(5), false);
+            insertUser(conn, "user5", "user5@example.com", "password_hash_5", "Emily", "Brown", "Teacher", List.of(4), true);
 
             // Step 3: Close the connection
             try {
@@ -135,8 +146,15 @@ public class Dbase {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
         }
+
+        // Example usage of UserManager
+        UserManager userManager = new UserManager();
+        User searcher = usersList.get(0); // Example: first user is the searcher
+        List<User> searchResults = userManager.searchUsers(usersList, "user", searcher);
+
+        // Print search results
+        for (User user : searchResults) {
+            System.out.println("Found user: " + user.getUsername());
+        }
     }
 }
-
-
-
