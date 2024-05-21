@@ -31,6 +31,8 @@ public class wallController implements Initializable {
     private Button changeBioButton;
 
     static UserSession user;
+
+    static int seenUser;
     @FXML
     private MenuItem item1;
 

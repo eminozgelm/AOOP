@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
 import java.net.URL;
@@ -19,6 +22,9 @@ import java.util.ResourceBundle;
 public class mainController implements Initializable {
 
     private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
+
+    @FXML
+    private TextField searchField;
     @FXML
     private Button publishButton;
     @FXML
@@ -34,8 +40,8 @@ public class mainController implements Initializable {
     private VBox postContainer;
     @FXML
     private MenuItem item2;
-
-
+    @FXML
+    private ListView<String> resultsListView;
     @FXML
     private SplitPane splitPane;
 
@@ -48,6 +54,106 @@ public class mainController implements Initializable {
         // Load posts from the database
         loadPostsFromDatabase();
     }
+
+
+
+    @FXML
+    private void handleSearch() {
+        String searchQuery = searchField.getText().trim();
+        if (searchQuery.isEmpty()) {
+            resultsListView.setItems(FXCollections.observableArrayList());
+            return;
+        }
+
+        // Fetch search results from the database
+        ObservableList<String> results = searchUsers(searchQuery);
+        resultsListView.setItems(results);
+
+        // Add click event handler to each item
+        resultsListView.setOnMouseClicked(event -> handleResultClick(event));
+    }
+
+    private ObservableList<String> searchUsers(String query) {
+        ObservableList<String> results = FXCollections.observableArrayList();
+        String sql = "SELECT username FROM users WHERE username LIKE ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, "%" + query + "%");
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    results.add(resultSet.getString("username"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Database Error", "An error occurred while searching for users.");
+        }
+
+        return results;
+    }
+
+    private void handleResultClick(MouseEvent event) {
+        String selectedUser = resultsListView.getSelectionModel().getSelectedItem();
+        if (selectedUser != null) {
+            // Get user_id of the selected user
+            int userId = getUserIdByUsername(selectedUser);
+            if (userId != -1) {
+                // Load the new page with selected user details
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("user_profile_view.fxml"));
+                    Parent root = loader.load();
+
+                    // Pass the user_id to the new controller
+                    wallController controller = loader.getController();
+                    controller.seenUser = (userId);
+
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("User Profile");
+                    stage.show();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert("Error", "Failed to load the user profile page.");
+                }
+            } else {
+                showAlert("User Not Found", "The selected user could not be found.");
+            }
+        }
+    }
+
+    private int getUserIdByUsername(String username) {
+        int userId = -1; // Default value indicating user not found
+        String sql = "SELECT user_id FROM users WHERE username = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, username);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    userId = resultSet.getInt("user_id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Database Error", "An error occurred while fetching the user ID.");
+        }
+
+        return userId;
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, content, ButtonType.OK);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
 
     private void loadPostsFromDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {

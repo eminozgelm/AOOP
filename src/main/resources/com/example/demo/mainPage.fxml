@@ -35,6 +35,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -42,6 +43,7 @@
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -89,6 +91,22 @@
                      </textFill>
                   </Label>
                   <Button fx:id="postButton" layoutX="178.0" layoutY="3.0" mnemonicParsing="false" onAction="#openPostWindow" text="Post" textAlignment="RIGHT" />
+                  <AnchorPane layoutX="-2.0" layoutY="41.0" prefHeight="351.0" prefWidth="231.0">
+                     <children>
+                        <ScrollPane prefHeight="349.0" prefWidth="233.0">
+                          <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox layoutY="-3.0" prefHeight="351.0" prefWidth="231.0" />
+                                 </children>
+                              </AnchorPane>
+                          </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
+                  <TextField fx:id="searchField" layoutX="14.0" layoutY="416.0" onAction="#handleSearch" />
+                  <Label layoutX="14.0" layoutY="399.0" prefHeight="17.0" prefWidth="149.0" text="Search Friends..." />
+                  <ListView fx:id="resultsListView" layoutX="14.0" layoutY="441.0" prefHeight="102.0" prefWidth="149.0" />
                </children>
             </AnchorPane>
             <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
