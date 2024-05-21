@@ -35,8 +35,11 @@ public class mainController implements Initializable {
     @FXML
     private MenuItem item2;
 
+
     @FXML
     private SplitPane splitPane;
+
+
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -113,7 +116,7 @@ public class mainController implements Initializable {
 
         return titledPane;
     }
-    public void goToProfile(ActionEvent event) throws IOException {
+    public void goTooProfile(ActionEvent event) throws IOException {
         Parent newPage = FXMLLoader.load(getClass().getResource("activeUserWall.fxml"));
         Scene newPageScene = new Scene(newPage);
 
@@ -126,15 +129,15 @@ public class mainController implements Initializable {
         currentStage.show();;
     }
 
-    public void returnFeed(ActionEvent event) throws IOException {
-        Parent newPage = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
-        Scene newPageScene = new Scene(newPage);
+    public void returnpFeed(ActionEvent event) throws IOException {
+        Parent ssPage = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
+        Scene sssPage = new Scene(ssPage);
 
         // Get the current stage (window)
         Stage currentStage = (Stage) ((MenuItem) event.getSource()).getParentPopup().getOwnerWindow();
 
         // Set the new scene in the current stage
-        currentStage.setScene(newPageScene);
+        currentStage.setScene(sssPage);
         currentStage.setTitle("Feed");
         currentStage.show();;
     }

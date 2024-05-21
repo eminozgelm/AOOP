@@ -41,7 +41,7 @@ public class loginController {
             int user_id= Dbase.authenticateUser(conn, userName, passWord);
             UserSession us = UserSession.getInstance();
             us.setUserId(user_id);
-
+            wallController wc = new wallController(us);
             // Display appropriate message based on authentication result
             if (user_id > 0) {
                 Parent home_page = FXMLLoader.load(getClass().getResource("mainPage.fxml"));

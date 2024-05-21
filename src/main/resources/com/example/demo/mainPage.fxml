@@ -56,8 +56,8 @@
          <menus>
             <Menu mnemonicParsing="false" text="My Profile">
                <items>
-                  <MenuItem fx:id="item1" mnemonicParsing="false" onAction="#goToProfile" text="Go to Profile..." />
-                  <MenuItem fx:id="item2" mnemonicParsing="false" onAction="#returnFeed" text="Go to Feed…" />
+                  <MenuItem fx:id="item1" mnemonicParsing="false" onAction="#goTooProfile" text="Go to Profile..." />
+                  <MenuItem fx:id="item2" mnemonicParsing="false" onAction="#returnpFeed" text="Go to Feed…" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Settings">

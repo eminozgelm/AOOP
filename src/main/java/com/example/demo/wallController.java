@@ -27,6 +27,7 @@ public class wallController implements Initializable {
     @FXML
     private Button changeBioButton;
 
+    static UserSession user;
     @FXML
     private MenuItem item1;
 
@@ -35,22 +36,27 @@ public class wallController implements Initializable {
 
     @FXML
     private VBox postContainer;
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
 
-        UserSession us = new UserSession();
-        int userId = us.userId;
-        System.out.println("userıd: " + userId);
-        // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
-        // Load posts from the database
-        loadPostsFromDatabase(userId);
+    public wallController(){
     }
 
-    private void loadPostsFromDatabase(int userId) {
+    public wallController(UserSession userX){
+        user = userX;
+
+
+    }
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
+        // Load posts from the database
+        loadPostsFromDatabase();
+    }
+
+    private void loadPostsFromDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = "SELECT * FROM posts WHERE post_owner = ? ORDER BY post_id DESC";
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setInt(1, userId);
+            statement.setInt(1, user.getUserId());
             ResultSet resultSet = statement.executeQuery();
 
             // Iterate over the result set and create post components
@@ -58,7 +64,7 @@ public class wallController implements Initializable {
                 String content = resultSet.getString("text");
 
                 // Fetch the username based on the userId
-                String username = fetchUsernameById(conn, userId);
+                String username = fetchUsernameById(conn, user.userId);
 
                 // Create a post component
                 TitledPane postComponent = createPostComponent(username, content);
