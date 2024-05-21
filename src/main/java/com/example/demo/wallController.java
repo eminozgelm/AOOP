@@ -20,6 +20,8 @@ public class wallController implements Initializable {
     private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
     @FXML
     private Label activeUserName;
+    @FXML
+    private Label profileName;
 
     @FXML
     private TextArea bio;
@@ -50,8 +52,35 @@ public class wallController implements Initializable {
         // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
         // Load posts from the database
         loadPostsFromDatabase();
+        loadUserBio();
     }
 
+    private void loadUserBio(){
+
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String query = "SELECT username, first_name, last_name, profile_info FROM users WHERE user_id = ?";
+
+            // Create a PreparedStatement with the parameterized query
+            try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+                // Set the user_id parameter
+                preparedStatement.setInt(1, user.userId);
+
+                // Execute the query
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    // Process the result set
+                    while (resultSet.next()) {
+                        activeUserName.setText(resultSet.getString("username"));
+                        profileName.setText(resultSet.getString("first_name") + " " + resultSet.getString("last_name"));
+                        bio.setText(resultSet.getString("profile_info"));
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
     private void loadPostsFromDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = "SELECT * FROM posts WHERE post_owner = ? ORDER BY post_id DESC";
