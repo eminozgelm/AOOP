@@ -1,5 +1,7 @@
 package com.example.demo;
 
+import java.util.ArrayList;
+
 public class User {
     private String username;
     private String password;
@@ -12,11 +14,11 @@ public class User {
 
     private String[] profileInfos;
 
-    private int[] friendsArray;
+    private ArrayList<Integer> friendsArray;
 
     boolean isHidden;
 
-    public User(String username, String password, String firstName, String lastName, String[] profileInfos, int[] friendsArray) {
+    public User(String username, String password, String firstName, String lastName, String[] profileInfos, ArrayList<Integer> friendsArray) {
         this.username = username;
         this.password = password;
         this.firstName = firstName;
@@ -84,15 +86,20 @@ public class User {
         isHidden = hidden;
     }
 
-    public int[] getFriendsArray() {
+    public ArrayList<Integer> getFriendsArray() {
         return friendsArray;
     }
 
-    public void setFriendsArray(int[] friendsArray) {
+    public void setFriendsArray(ArrayList<Integer> friendsArray) {
         this.friendsArray = friendsArray;
     }
 
+    public void addFriend(int friend){
+        ArrayList userFriends = this.getFriendsArray();
+        userFriends.add(friend);
+        setFriendsArray(userFriends);
 
+    }
 
 }
 

@@ -114,7 +114,7 @@
             </ScrollPane>
             <AnchorPane>
                <children>
-                  <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" prefHeight="27.0" prefWidth="113.0" style="&#10;" text="Message Box" textAlignment="CENTER" textFill="$x2" wrapText="false" />
+                  <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" prefHeight="27.0" prefWidth="113.0" style="&#10;" text="Groups" textAlignment="CENTER" textFill="$x2" wrapText="false" />
                </children>
             </AnchorPane>
          </items>
