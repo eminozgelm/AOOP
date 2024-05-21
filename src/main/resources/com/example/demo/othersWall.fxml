@@ -27,7 +27,7 @@
             <Menu mnemonicParsing="false" text="My Profile">
                <items>
                   <MenuItem fx:id="item1" mnemonicParsing="false" text="Go to Profile..." />
-                  <MenuItem fx:id="item2" mnemonicParsing="false" onAction="#returnFeed" text="Go to Feed..." />
+                  <MenuItem fx:id="item2" mnemonicParsing="false" onAction="#returnpFeed" text="Go to Feed..." />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Settings">
@@ -72,13 +72,13 @@
                               <Glow />
                            </effect>
                         </ImageView>
-                        <Label fx:id="activeUserName" layoutX="201.0" layoutY="34.0" prefHeight="35.0" prefWidth="457.0" text="userName">
+                        <Label fx:id="activeUserName" layoutX="201.0" layoutY="34.0" prefHeight="35.0" prefWidth="457.0">
                            <font>
                               <Font name="MS Reference Sans Serif" size="24.0" />
                            </font>
                         </Label>
-                        <Label fx:id="profileName" layoutX="201.0" layoutY="94.0" prefHeight="17.0" prefWidth="304.0" text="nameANDsurname" />
-                        <TextArea fx:id="bio" editable="false" layoutX="201.0" layoutY="124.0" prefHeight="49.0" prefWidth="391.0" text="bio" />
+                        <Label fx:id="profileName" layoutX="201.0" layoutY="94.0" prefHeight="17.0" prefWidth="304.0" />
+                        <TextArea fx:id="bio" editable="false" layoutX="201.0" layoutY="124.0" prefHeight="49.0" prefWidth="391.0" />
                         <Button fx:id="changeBioButton" layoutX="515.0" layoutY="90.0" mnemonicParsing="false" text="Change Bio" />
                      </children>
                   </Pane>

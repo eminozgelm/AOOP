@@ -33,6 +33,8 @@ public class wallController implements Initializable {
     static UserSession user;
 
     static int seenUser;
+
+    static int enableProfileWall;
     @FXML
     private MenuItem item1;
 
@@ -81,7 +83,13 @@ public class wallController implements Initializable {
              PreparedStatement preparedStatement = conn.prepareStatement(query)) {
 
             preparedStatement.setString(1, profileInfo);
-            preparedStatement.setInt(2, user.userId);
+
+            if(enableProfileWall == 1) {
+                preparedStatement.setInt(2, user.userId);
+            }else {
+                preparedStatement.setInt(2, seenUser);
+            }
+
 
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
@@ -113,7 +121,11 @@ public class wallController implements Initializable {
             // Create a PreparedStatement with the parameterized query
             try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
                 // Set the user_id parameter
-                preparedStatement.setInt(1, user.userId);
+                if(enableProfileWall == 1) {
+                    preparedStatement.setInt(1, user.userId);
+                }else {
+                    preparedStatement.setInt(1, seenUser);
+                }
 
                 // Execute the query
                 try (ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -135,15 +147,27 @@ public class wallController implements Initializable {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = "SELECT * FROM posts WHERE post_owner = ? ORDER BY post_id DESC";
             PreparedStatement statement = conn.prepareStatement(query);
-            statement.setInt(1, user.getUserId());
+            System.out.println(enableProfileWall);
+            if(enableProfileWall == 1) {
+                statement.setInt(1, user.userId);
+            }else {
+                System.out.println("IM HERE");
+                statement.setInt(1, seenUser);
+            }
             ResultSet resultSet = statement.executeQuery();
 
             // Iterate over the result set and create post components
             while (resultSet.next()) {
                 String content = resultSet.getString("text");
 
+                String username;
                 // Fetch the username based on the userId
-                String username = fetchUsernameById(conn, user.userId);
+                if(enableProfileWall == 1){
+                    username = fetchUsernameById(conn, user.userId);
+                }else {
+                    username = fetchUsernameById(conn, seenUser);
+                }
+
 
                 // Create a post component
                 TitledPane postComponent = createPostComponent(username, content);
@@ -165,7 +189,11 @@ public class wallController implements Initializable {
         String query = "SELECT username FROM users WHERE user_id = ?";
 
         try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
-            preparedStatement.setInt(1, userId);
+            if(enableProfileWall == 1) {
+                preparedStatement.setInt(1, user.userId);
+            }else {
+                preparedStatement.setInt(1, seenUser);
+            }
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {

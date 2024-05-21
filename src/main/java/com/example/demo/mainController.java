@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -103,17 +104,14 @@ public class mainController implements Initializable {
             if (userId != -1) {
                 // Load the new page with selected user details
                 try {
-                    FXMLLoader loader = new FXMLLoader(getClass().getResource("user_profile_view.fxml"));
-                    Parent root = loader.load();
-
-                    // Pass the user_id to the new controller
-                    wallController controller = loader.getController();
-                    controller.seenUser = (userId);
-
-                    Stage stage = new Stage();
-                    stage.setScene(new Scene(root));
-                    stage.setTitle("User Profile");
-                    stage.show();
+                    Parent home_page = FXMLLoader.load(getClass().getResource("othersWall.fxml"));
+                    wallController controller = new wallController();
+                    controller.seenUser = userId;
+                    controller.enableProfileWall = 2;
+                    Scene hp_scene = new Scene(home_page);
+                    Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    app_stage.setScene(hp_scene);
+                    app_stage.show();
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -236,6 +234,8 @@ public class mainController implements Initializable {
     }
 
     public void returnpFeed(ActionEvent event) throws IOException {
+        wallController c = new wallController();
+        c.enableProfileWall = 1;
         Parent ssPage = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
         Scene sssPage = new Scene(ssPage);
 
@@ -245,7 +245,7 @@ public class mainController implements Initializable {
         // Set the new scene in the current stage
         currentStage.setScene(sssPage);
         currentStage.setTitle("Feed");
-        currentStage.show();;
+        currentStage.show();
     }
 
 

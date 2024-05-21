@@ -93,7 +93,7 @@ public class Dbase {
             System.out.println("User inserted successfully.");
 
             // Add user to the usersList
-            User user = new User(username, passwordHash, firstName, lastName, profileInfo.split(","), friends.stream().mapToInt(i -> i).toArray());
+            User user = new User(username, passwordHash, firstName, lastName, profileInfo.split(","), new ArrayList<>());
             user.setEmailAdress(email);
             user.setHidden(isHidden);
             usersList.add(user);
