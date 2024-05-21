@@ -75,7 +75,7 @@ public class signController {
         Connection conn = Dbase.connect();
         if (conn != null) {
 
-            Dbase.insertUser(conn, username, email, password, name, lastName, "", List.of(0));
+            Dbase.insertUser(conn, username, email, password, name, lastName, "", List.of(0),false);
             System.out.println("ADDED USER");
             try {
                 conn.close();
