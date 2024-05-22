@@ -243,27 +243,107 @@ public class wallController implements Initializable {
                 "ELSE friend_list || ',' ||  ? END " + // Use '||' for concatenation
                 "WHERE user_id = ?";
 
+        boolean isExist = false;
+
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
 
             int friendId = seenUser;
             int userId = user.userId;
-            String friendIdStr = String.valueOf(friendId);
-            preparedStatement.setString(1, friendIdStr);
-            preparedStatement.setString(2, friendIdStr);
-            preparedStatement.setInt(3, userId);
+            mainController mC = new mainController();
+            int[] friendList = mC.getFriendList(userId);
 
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Friend added successfully.");
-            } else {
-                System.out.println("Failed to add friend.");
+            for (int friend: friendList) {
+                if(friend == friendId) {
+                    isExist = true;
+                    break;
+                }
             }
+
+            if (!isExist) {
+                String friendIdStr = String.valueOf(friendId);
+                preparedStatement.setString(1, friendIdStr);
+                preparedStatement.setString(2, friendIdStr);
+                preparedStatement.setInt(3, userId);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected > 0) {
+                    System.out.println("Friend added successfully.");
+                } else {
+                    System.out.println("Failed to add friend.");
+                }
+            } else {
+                System.out.println("User already in the friend list.");
+            }
+
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR,"Database Error", "An error occurred while removing friend.");
         }
     }
+
+    public void removeFriend(ActionEvent event) {
+
+        String updateSql = "UPDATE users SET friend_list = ? WHERE user_id = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            int friendId = seenUser;
+            int userId = user.userId;
+            mainController mC = new mainController();
+            int[] friendList = mC.getFriendList(userId);
+
+            // Check if the friend is in the friend list
+            boolean isExist = false;
+            for (int friend : friendList) {
+                if (friend == friendId) {
+                    isExist = true;
+                    break;
+                }
+            }
+
+            if (isExist) {
+                // Remove the friend from the list
+                List<Integer> newFriendList = new ArrayList<>();
+                for (int friend : friendList) {
+                    if (friend != friendId) {
+                        newFriendList.add(friend);
+                    }
+                }
+
+                // Convert the new friend list to the format suitable for the database
+                StringBuilder friendListStringBuilder = new StringBuilder();
+                for (int i = 0; i < newFriendList.size(); i++) {
+                    friendListStringBuilder.append(newFriendList.get(i));
+                    if (i < newFriendList.size() - 1) {
+                        friendListStringBuilder.append(",");
+                    }
+                }
+                String newFriendListStr = !friendListStringBuilder.isEmpty() ? friendListStringBuilder.toString() : null;
+
+                // Update the friend list in the database
+                try (PreparedStatement preparedStatement = conn.prepareStatement(updateSql)) {
+                    preparedStatement.setString(1, newFriendListStr);
+                    preparedStatement.setInt(2, userId);
+
+                    int rowsAffected = preparedStatement.executeUpdate();
+                    if (rowsAffected > 0) {
+                        System.out.println("Friend removed successfully.");
+                    } else {
+                        System.out.println("Failed to remove friend.");
+                    }
+                }
+            } else {
+                System.out.println("You can't remove a user who isn't in your friend list.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Database Error", "An error occurred while removing friend.");
+        }
+    }
+
+
+
 
     public void goToProfile(ActionEvent event) throws IOException {
         Parent newPage = FXMLLoader.load(getClass().getResource("activeUserWall.fxml"));
