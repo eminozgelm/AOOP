@@ -26,6 +26,10 @@ public class mainController implements Initializable {
 
     private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
 
+
+    @FXML
+    private VBox postContainer1;
+
     @FXML
     private VBox groupContainer;
     @FXML
@@ -63,6 +67,7 @@ public class mainController implements Initializable {
 
         // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
         // Load posts from the database
+        loadFriendPostsFromDatabase();
         loadPostsFromDatabase();
         getFriendList(UserSession.getInstance().getUserId());
         displayUserGroups(UserSession.getInstance().getUserId());
@@ -300,6 +305,44 @@ public class mainController implements Initializable {
         currentStage.show();
     }
 
+
+    private int[] getONLYFriendList(){
+
+
+            int[] friends = {};
+            try (Connection conn = DriverManager.getConnection(DB_URL)) {
+                // Step 1: Retrieve the friend list for the given user ID
+                String query = "SELECT friend_list FROM users WHERE user_id = ?";
+                PreparedStatement preparedStatement = conn.prepareStatement(query);
+                preparedStatement.setInt(1, wallController.user.userId);
+                ResultSet resultSet = preparedStatement.executeQuery();
+
+                if (resultSet.next()) {
+                    String friendList = resultSet.getString("friend_list");
+
+
+                    if (friendList != null && !friendList.isEmpty()) {
+                        friends = convertStringToArray(friendList);
+
+
+
+
+                    } else {
+                        System.out.println("User has no friends listed.");
+                    }
+
+
+
+                } else {
+                    System.out.println("No user found with the user ID: " + wallController.user.userId);
+                }
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+                }
+            return friends;
+    }
+
     private void loadFriendPostsFromDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = "SELECT * FROM posts ORDER BY post_id DESC";
@@ -308,31 +351,35 @@ public class mainController implements Initializable {
 
             // Iterate over the result set and create post components
             while (resultSet.next()) {
-
                 int user_Id = resultSet.getInt("post_owner");
-                if( Arrays.asList(getFriendList(UserSession.getInstance().getUserId())).contains(user_Id)  ) {
 
+                for(int a : getONLYFriendList()){
+                    if(user_Id == a){
+                        String content = resultSet.getString("text");
 
-                    String content = resultSet.getString("text");
+                        // Fetch the username based on the userId
+                        String username = fetchUsernameById(conn, user_Id);
 
-                    // Fetch the username based on the userId
-                    String username = fetchUsernameById(conn, user_Id);
+                        // Create a post component
+                        TitledPane postComponent = createPostComponent(username, content);
 
-                    // Create a post component
-                    TitledPane postComponent = createPostComponent(username, content);
+                        // Add the post component to the postContainer
+                        try {
+                            postContainer1.getChildren().add(postComponent);
+                        } catch (NullPointerException e) {
+                            System.err.println("postContainer is null: " + e.getMessage());
+                        }
 
-                    // Add the post component to the postContainer
-                    try {
-                        postContainer.getChildren().add(postComponent);
-                    } catch (NullPointerException e) {
-                        System.err.println("postContainer is null: " + e.getMessage());
                     }
                 }
+
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+
 
     private String fetchUsernameById(Connection conn, int userId) {
         String username = "";
