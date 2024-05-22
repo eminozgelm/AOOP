@@ -25,6 +25,10 @@ public class mainController implements Initializable {
     private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
 
     @FXML
+    private VBox friendsArea;
+    @FXML
+    private TextField searchField2;
+    @FXML
     private TextField searchField;
     @FXML
     private Button publishButton;
@@ -42,6 +46,8 @@ public class mainController implements Initializable {
     @FXML
     private MenuItem item2;
     @FXML
+    private ListView<String> groupResultsView;
+    @FXML
     private ListView<String> resultsListView;
     @FXML
     private SplitPane splitPane;
@@ -54,9 +60,68 @@ public class mainController implements Initializable {
         // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
         // Load posts from the database
         loadPostsFromDatabase();
+        getFriendList(UserSession.getInstance().getUserId());
     }
 
+    public  int[] getFriendList(int userId) {
+        int[] friends = {};
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            // Step 1: Retrieve the friend list for the given user ID
+            String query = "SELECT friend_list FROM users WHERE user_id = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            preparedStatement.setInt(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
+            if (resultSet.next()) {
+                String friendList = resultSet.getString("friend_list");
+
+
+                if (friendList != null && !friendList.isEmpty()) {
+                    friends = convertStringToArray(friendList);
+
+
+
+
+                } else {
+                    System.out.println("User has no friends listed.");
+                }
+
+
+
+            } else {
+                System.out.println("No user found with the user ID: " + userId);
+            }
+
+            for (int friendId : friends) {
+                Label friendLabel = new Label("Friend ID: " + fetchUsernameById(conn,friendId));
+                friendsArea.getChildren().add(friendLabel);
+            }
+
+
+
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return friends;
+    }
+    public static int[] convertStringToArray(String input) {
+        // Remove square brackets
+        input = input.replaceAll("\\[", "").replaceAll("\\]", "");
+
+        // Split the string by commas
+        String[] stringArray = input.split(",");
+
+        // Convert the string array to an int array
+        int[] intArray = new int[stringArray.length];
+        for (int i = 0; i < stringArray.length; i++) {
+            intArray[i] = Integer.parseInt(stringArray[i].trim());
+        }
+
+        return intArray;
+    }
 
     @FXML
     private void handleSearch() {
@@ -275,10 +340,9 @@ public class mainController implements Initializable {
         // Call method to write post data to the database
         writePostToDatabase(userID, postContent);
 
-
     }
 
-    private void writePostToDatabase(int userID, String postContent) {
+    public static void writePostToDatabase(int userID, String postContent) {
         String insertPostSQL = "INSERT INTO posts (post_owner, text) VALUES (?, ?)";
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
@@ -297,6 +361,97 @@ public class mainController implements Initializable {
             System.err.println("Error: " + e.getMessage());
         }
     }
+
+
+    @FXML
+    private void handleGroupearch() {
+        searchField2.textProperty().addListener((observable, oldValue, newValue) -> {
+            String searchQuery = newValue.trim();
+            if (searchQuery.isEmpty()) {
+                groupResultsView.setItems(FXCollections.observableArrayList());
+                groupResultsView.setVisible(false);
+            } else {
+                // Fetch search results from the database
+                ObservableList<String> results = searchGroups(searchQuery);
+                groupResultsView.setItems(results);
+                groupResultsView.setVisible(true);
+            }
+        });
+
+        // Add click event handler to each item
+        groupResultsView.setOnMouseClicked(this::group_handleResultClick);
+    }
+
+    private ObservableList<String> searchGroups(String query) {
+        ObservableList<String> results = FXCollections.observableArrayList();
+        String sql = "SELECT group_name FROM groups WHERE group_name LIKE ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, "%" + query + "%");
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    results.add(resultSet.getString("group_name"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Database Error", "An error occurred while searching for groups.");
+        }
+
+        return results;
+    }
+
+    private void group_handleResultClick(MouseEvent event) {
+        String selectedGroup = groupResultsView.getSelectionModel().getSelectedItem();
+        if (selectedGroup != null) {
+            // Get group_id of the selected group
+            int groupId = getGroupIdByName(selectedGroup);
+            if (groupId != -1) {
+                // Load the new page with selected group details
+                try {
+                    // Assuming `groupController` is set up similarly to `wallController`
+                    groupController.selectedGroupId = groupId;
+                    Parent home_page = FXMLLoader.load(getClass().getResource("groupPage.fxml"));
+                    Scene hp_scene = new Scene(home_page);
+                    Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                    app_stage.setScene(hp_scene);
+                    app_stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert("Error", "Failed to load the group page.");
+                }
+            } else {
+                showAlert("Group Not Found", "The selected group could not be found.");
+            }
+        }
+    }
+
+    private int getGroupIdByName(String groupName) {
+        int groupId = -1; // Default value indicating group not found
+        String sql = "SELECT id FROM groups WHERE group_name = ?";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setString(1, groupName);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    groupId = resultSet.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Database Error", "An error occurred while fetching the group ID.");
+        }
+
+        return groupId;
+    }
+
+
 
 
 }

@@ -2,12 +2,20 @@ package com.example.demo;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextArea;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +23,65 @@ import static com.example.demo.Dbase.connect;
 import static com.example.demo.Dbase.insertUser;
 
 public class groupController {
+
+    static int selectedGroupId;
+    @FXML
+    private TextArea postContentTextArea;
+    private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
+    public void returnFeed(ActionEvent event) throws IOException {
+        Parent newPage = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
+        Scene newPageScene = new Scene(newPage);
+
+        // Get the current stage (window)
+        Stage currentStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+
+        // Set the new scene in the current stage
+        currentStage.setScene(newPageScene);
+        currentStage.setTitle("Feed");
+        currentStage.show();
+    }
+    @FXML
+    public void openPostWindow(ActionEvent event) throws IOException {
+        Parent newPage = FXMLLoader.load(getClass().getResource("postWrite.fxml"));
+        Scene newPageScene = new Scene(newPage);
+
+        // Create a new stage for the new window
+        Stage newStage = new Stage();
+        newStage.setScene(newPageScene);
+        newStage.setTitle("Post");
+        newStage.show();
+    }
+
+    @FXML
+    private void publishPost(ActionEvent event) throws IOException {
+        int userID = UserSession.getInstance().getUserId();
+        String postContent = postContentTextArea.getText();
+        // Call method to write post data to the database
+        writePostToDatabase(1,userID, postContent);
+
+    }
+
+    private static void writePostToDatabase(int groupID,int userID, String postContent) {
+        String insertPostSQL = "INSERT INTO group_posts (group_id, owner_id, text) VALUES (?, ?, ?)";
+
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = conn.prepareStatement(insertPostSQL)) {
+
+            preparedStatement.setInt(1, groupID);
+            preparedStatement.setInt(2, userID);
+            preparedStatement.setString(3, postContent);
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Post published successfully.");
+            } else {
+                System.out.println("Failed to publish post.");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+    }
+
 
     // Inserting a group into the groups table
     public static void insertGroup(Connection conn, Group group) {

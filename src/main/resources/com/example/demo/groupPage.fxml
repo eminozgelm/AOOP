@@ -1,75 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.groupController">
    <children>
-      <MenuBar>
-        <menus>
-          <Menu mnemonicParsing="false" text="My Profile">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Go To Profile" />
-                  <MenuItem mnemonicParsing="false" text="Go To Feed" />
-            </items>
-          </Menu>
-        </menus>
-      </MenuBar>
-      <SplitPane dividerPositions="0.5" prefHeight="353.0" prefWidth="600.0">
-        <items>
-          <AnchorPane maxWidth="-Infinity" minHeight="0.0" minWidth="0.0" prefHeight="350.0" prefWidth="176.0">
+      <SplitPane layoutX="-2.0" prefHeight="600.0" prefWidth="900.0">
+         <items>
+            <AnchorPane prefHeight="612.0" prefWidth="876.0">
                <children>
-                  <SplitPane dividerPositions="0.5" orientation="VERTICAL" prefHeight="350.0" prefWidth="176.0">
-                    <items>
-                      <AnchorPane maxHeight="-Infinity" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" prefHeight="65.0" prefWidth="173.0">
-                           <children>
-                              <TextArea prefHeight="65.0" prefWidth="176.0" text="TC NEYMAR SEVDALILARI GRUBU" wrapText="true">
-                                 <font>
-                                    <Font name="System Bold" size="12.0" />
-                                 </font>
-                              </TextArea>
-                              <Button layoutX="115.0" layoutY="33.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="51.0" text="Post" />
-                           </children>
-                        </AnchorPane>
-                      <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="22.0" prefWidth="173.0" />
-                    </items>
-                  </SplitPane>
-               </children>
-            </AnchorPane>
-            <ScrollPane maxWidth="1.7976931348623157E308" prefHeight="350.0" prefWidth="448.0">
-               <content>
-                  <AnchorPane prefHeight="350.0" prefWidth="415.0">
-                     <children>
-                        <VBox prefHeight="352.0" prefWidth="416.0">
+                  <ScrollPane layoutX="213.0" layoutY="-2.0" prefHeight="598.0" prefWidth="683.0">
+                     <content>
+                        <VBox prefHeight="595.0" prefWidth="681.0">
                            <children>
                               <TitledPane animated="false" text="untitled">
                                 <content>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <TextArea prefHeight="180.0" prefWidth="416.0" text="saas" />
-                                       </children>
-                                    </AnchorPane>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
                                 </content>
                               </TitledPane>
                            </children>
                         </VBox>
-                     </children>
-                  </AnchorPane>
-               </content>
-            </ScrollPane>
-        </items>
+                     </content>
+                  </ScrollPane>
+                  <AnchorPane layoutY="58.0" prefHeight="540.0" prefWidth="212.0" />
+                  <Text layoutX="14.0" layoutY="36.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Groups" wrappingWidth="51.373046875" />
+                  <Button layoutX="164.0" layoutY="19.0" mnemonicParsing="false" onAction="#openPostWindow" text="Post" />
+                  <Button layoutX="94.0" layoutY="19.0" mnemonicParsing="false" onAction="#returnFeed" text="Go Back" />
+               </children>
+            </AnchorPane>
+         </items>
       </SplitPane>
-      <HBox prefHeight="24.0" prefWidth="600.0" />
    </children>
-</VBox>
+</AnchorPane>
