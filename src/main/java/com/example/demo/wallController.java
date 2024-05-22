@@ -336,4 +336,8 @@ public class wallController implements Initializable {
         currentStage.setTitle("Feed");
         currentStage.show();;
     }
+
+
+
+
 }
