@@ -26,6 +26,8 @@ public class mainController implements Initializable {
 
     @FXML
     private TextField searchField;
+
+
     @FXML
     private Button publishButton;
     @FXML
@@ -45,7 +47,8 @@ public class mainController implements Initializable {
     private ListView<String> resultsListView;
     @FXML
     private SplitPane splitPane;
-
+    @FXML
+    private VBox friendsArea;
 
 
     @Override
@@ -53,7 +56,10 @@ public class mainController implements Initializable {
 
         // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
         // Load posts from the database
+
         loadPostsFromDatabase();
+
+        getFriendList(UserSession.getInstance().getUserId());
     }
 
 
@@ -188,6 +194,7 @@ public class mainController implements Initializable {
         }
     }
 
+
     private String fetchUsernameById(Connection conn, int userId) {
         String username = "";
         String query = "SELECT username FROM users WHERE user_id = ?";
@@ -226,6 +233,8 @@ public class mainController implements Initializable {
 
         return titledPane;
     }
+
+
     public void goTooProfile(ActionEvent event) throws IOException {
         wallController.enableProfileWall = 1;
         Parent newPage = FXMLLoader.load(getClass().getResource("activeUserWall.fxml"));
@@ -297,6 +306,65 @@ public class mainController implements Initializable {
             System.err.println("Error: " + e.getMessage());
         }
     }
+    public  int[] getFriendList(int userId) {
+        int[] friends = {};
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            // Step 1: Retrieve the friend list for the given user ID
+            String query = "SELECT friend_list FROM users WHERE user_id = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            preparedStatement.setInt(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String friendList = resultSet.getString("friend_list");
 
 
+                if (friendList != null && !friendList.isEmpty()) {
+                    friends = convertStringToArray(friendList);
+
+
+
+
+                } else {
+                    System.out.println("User has no friends listed.");
+                }
+
+
+
+            } else {
+                System.out.println("No user found with the user ID: " + userId);
+            }
+
+            for (int friendId : friends) {
+                Label friendLabel = new Label("Friend ID: " + fetchUsernameById(conn,friendId));
+                friendsArea.getChildren().add(friendLabel);
+                }
+
+
+
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return friends;
+    }
+
+
+    public static int[] convertStringToArray(String input) {
+        // Remove square brackets
+        input = input.replaceAll("\\[", "").replaceAll("\\]", "");
+
+        // Split the string by commas
+        String[] stringArray = input.split(",");
+
+        // Convert the string array to an int array
+        int[] intArray = new int[stringArray.length];
+        for (int i = 0; i < stringArray.length; i++) {
+            intArray[i] = Integer.parseInt(stringArray[i].trim());
+        }
+
+        return intArray;
+    }
 }
