@@ -655,27 +655,46 @@ public class groupController implements Initializable {
                     int userIdToRemove = mainController.getUserIdByUsername(usernameToRemove);
                     if (userIdToRemove != -1) {
                         try (Connection conn = DriverManager.getConnection(DB_URL)) {
-                            String deleteQuery = "UPDATE groups SET users_array = REPLACE(users_array, ? || ',', '') WHERE id = ?";
-                            PreparedStatement statement = conn.prepareStatement(deleteQuery);
-                            statement.setString(1, "," + userIdToRemove);
-                            statement.setInt(2, selectedGroupId);
-                            statement.executeUpdate();
-                            statement.close();
+                            // Get the current users_array value
+                            String selectQuery = "SELECT users_array FROM groups WHERE id = ?";
+                            PreparedStatement selectStatement = conn.prepareStatement(selectQuery);
+                            selectStatement.setInt(1, selectedGroupId);
+                            ResultSet resultSet = selectStatement.executeQuery();
 
-                            System.out.println("User deleted from the group successfully.");
+                            if (resultSet.next()) {
+                                String currentUsersArray = resultSet.getString("users_array");
+                                // Remove the userId from the users_array
+                                String updatedUsersArray = currentUsersArray
+                                        .replaceAll("\\[" + userIdToRemove + ",", "") // Remove if at the beginning
+                                        .replaceAll("," + userIdToRemove + ",", ",") // Remove if in the middle
+                                        .replaceAll("," + userIdToRemove + "\\]", "]"); // Remove if at the end
+
+                                // Update the users_array in the group_database table
+                                String updateQuery = "UPDATE groups SET users_array = ? WHERE id = ?";
+                                PreparedStatement updateStatement = conn.prepareStatement(updateQuery);
+                                updateStatement.setString(1, updatedUsersArray);
+                                updateStatement.setInt(2, selectedGroupId);
+                                updateStatement.executeUpdate();
+
+                                System.out.println("User deleted from the group successfully.");
+                            }
+
+                            resultSet.close();
+                            selectStatement.close();
 
                         } catch (SQLException e) {
                             e.printStackTrace();
                         }
+                    }
                         // Update database or perform any other necessary action
                         showAlert("User Removed", "User " + usernameToRemove + " has been removed from the group.");
                     } else {
                         showAlert("User Not Found", "User " + usernameToRemove + " is not in the group.");
                     }
-                }
-            } else {
+                }  else {
                 showAlert("Access Denied", "You do not have permission to remove users from the group.");
             }
+
         });
     }
 
