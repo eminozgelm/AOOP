@@ -286,6 +286,40 @@ public class mainController implements Initializable {
         }
     }
 
+    private void loadFriendPostsFromDatabase() {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String query = "SELECT * FROM posts ORDER BY post_id DESC";
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+
+            // Iterate over the result set and create post components
+            while (resultSet.next()) {
+                UserManager um = new UserManager();
+                int user_Id = resultSet.getInt("post_owner");
+                if( Arrays.asList(getFriendList(UserSession.getInstance().getUserId())).contains(user_Id)  ) {
+
+
+                    String content = resultSet.getString("text");
+
+                    // Fetch the username based on the userId
+                    String username = fetchUsernameById(conn, user_Id);
+
+                    // Create a post component
+                    TitledPane postComponent = createPostComponent(username, content);
+
+                    // Add the post component to the postContainer
+                    try {
+                        postContainer.getChildren().add(postComponent);
+                    } catch (NullPointerException e) {
+                        System.err.println("postContainer is null: " + e.getMessage());
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     private String fetchUsernameById(Connection conn, int userId) {
         String username = "";
         String query = "SELECT username FROM users WHERE user_id = ?";
