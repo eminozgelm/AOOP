@@ -44,6 +44,8 @@ public class wallController implements Initializable {
     static int seenUser;
 
     static int enableProfileWall;
+
+    static int initiliazable;
     @FXML
     private MenuItem item1;
 
@@ -94,6 +96,7 @@ public class wallController implements Initializable {
 
 
     private void updateFriendActionButton() throws SQLException {
+        if(initiliazable == 0) return;
         Connection conn = DriverManager.getConnection(DB_URL);
         boolean areFriends = false;
 
@@ -104,6 +107,7 @@ public class wallController implements Initializable {
         int friendsArray[] = mC.getFriendList(user.userId);
         for (int friend : friendsArray) {
             if (friend == seenUserId) {
+                System.out.println("here");
                 areFriends = true;
                 break;
             }

@@ -69,7 +69,7 @@ public class mainController implements Initializable {
     }
 
     public  int[] getFriendList(int userId) {
-
+        wallController.initiliazable = 1;
         int[] friends = {};
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             // Step 1: Retrieve the friend list for the given user ID
@@ -286,6 +286,20 @@ public class mainController implements Initializable {
         }
     }
 
+    @FXML
+    private void logOut(ActionEvent event) throws IOException {
+        Parent newPage = FXMLLoader.load(getClass().getResource("login.fxml"));
+        Scene newPageScene = new Scene(newPage);
+
+        // Get the current stage (window)
+        Stage currentStage = (Stage) ((MenuItem) event.getSource()).getParentPopup().getOwnerWindow();
+
+        // Set the new scene in the current stage
+        currentStage.setScene(newPageScene);
+        currentStage.setTitle("Login");
+        currentStage.show();
+    }
+
     private void loadFriendPostsFromDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             String query = "SELECT * FROM posts ORDER BY post_id DESC";
@@ -360,6 +374,7 @@ public class mainController implements Initializable {
     }
     public void goTooProfile(ActionEvent event) throws IOException {
         wallController.enableProfileWall = 1;
+        wallController.initiliazable = 0;
         Parent newPage = FXMLLoader.load(getClass().getResource("activeUserWall.fxml"));
         Scene newPageScene = new Scene(newPage);
 
