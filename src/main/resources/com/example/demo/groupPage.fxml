@@ -32,9 +32,9 @@
                   <AnchorPane layoutY="58.0" prefHeight="540.0" prefWidth="212.0">
                      <children>
                         <Label layoutX="14.0" layoutY="25.0" prefHeight="17.0" prefWidth="87.0" text="Admins" />
-                        <VBox fx:id="membersArea" layoutX="16.0" layoutY="127.0" prefHeight="403.0" prefWidth="192.0">
+                        <VBox fx:id="membersArea" layoutX="16.0" layoutY="127.0" prefHeight="403.0" prefWidth="179.0">
                            <children>
-                              <Label prefHeight="17.0" prefWidth="169.0" text="Group Members">
+                              <Label prefHeight="0.0" prefWidth="169.0" text="Group Members">
                                  <VBox.margin>
                                     <Insets />
                                  </VBox.margin>
@@ -47,6 +47,7 @@
                               <VBox fx:id="admins" prefHeight="76.0" prefWidth="188.0" />
                            </content>
                         </ScrollPane>
+                        <Button fx:id="removeUserButton" layoutX="120.0" layoutY="2.0" mnemonicParsing="false" onAction="#handleRemoveButton" text="Remove User" />
                      </children></AnchorPane>
                   <Text layoutX="14.0" layoutY="36.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Groups" wrappingWidth="51.373046875" />
                   <Button layoutX="164.0" layoutY="19.0" mnemonicParsing="false" onAction="#openPostWindow" text="Post" />

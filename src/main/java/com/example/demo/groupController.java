@@ -29,6 +29,10 @@ import static com.example.demo.Dbase.insertUser;
 
 public class groupController implements Initializable {
 
+
+    @FXML
+    private Button removeUserButton;
+
     @FXML
     private Button adminAdd;
 
@@ -70,6 +74,7 @@ public class groupController implements Initializable {
         getGroupMembersList(selectedGroupId, true);
         setAdmins();
         createNewArrays();
+        handleRemoveButton();
     }
 
 
@@ -632,8 +637,72 @@ public class groupController implements Initializable {
     }
 
 
+    @FXML
+    public void handleRemoveButton(){
+        boolean x = isAdmin();
+        removeUserButton.setVisible(x);
 
+        removeUserButton.setOnAction(event -> {
+            if (isAdmin()) {
+                TextInputDialog dialog = new TextInputDialog();
+                dialog.setTitle("Remove User");
+                dialog.setHeaderText("Enter the username to remove:");
+                dialog.setContentText("Username:");
 
+                // Show remove user dialog and get the input
+                String usernameToRemove = dialog.showAndWait().orElse(null);
+                if (usernameToRemove != null && !usernameToRemove.isEmpty()) {
+                    int userIdToRemove = mainController.getUserIdByUsername(usernameToRemove);
+                    if (userIdToRemove != -1) {
+                        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+                            String deleteQuery = "UPDATE groups SET users_array = REPLACE(users_array, ? || ',', '') WHERE id = ?";
+                            PreparedStatement statement = conn.prepareStatement(deleteQuery);
+                            statement.setString(1, "," + userIdToRemove);
+                            statement.setInt(2, selectedGroupId);
+                            statement.executeUpdate();
+                            statement.close();
+
+                            System.out.println("User deleted from the group successfully.");
+
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        // Update database or perform any other necessary action
+                        showAlert("User Removed", "User " + usernameToRemove + " has been removed from the group.");
+                    } else {
+                        showAlert("User Not Found", "User " + usernameToRemove + " is not in the group.");
+                    }
+                }
+            } else {
+                showAlert("Access Denied", "You do not have permission to remove users from the group.");
+            }
+        });
+    }
+
+    private boolean isAdmin() {
+            try (Connection conn = DriverManager.getConnection(DB_URL)) {
+                String sql = "SELECT group_admins FROM groups WHERE id = ?";
+                PreparedStatement statement = conn.prepareStatement(sql);
+                statement.setInt(1, selectedGroupId);
+                ResultSet resultSet = statement.executeQuery();
+
+                if (resultSet.next()) {
+                    String adminIdsString = resultSet.getString("group_admins");
+                    int[] adminIds = convertStringToArray(adminIdsString);
+                    for (int adminId : adminIds) {
+                        System.out.println(wallController.user.userId);
+                        System.out.println(adminId);
+                        if (adminId == wallController.user.userId) {
+                            return true;
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return false;
+
+    }
 
 
 }
