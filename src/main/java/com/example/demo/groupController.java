@@ -12,21 +12,20 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static com.example.demo.Dbase.connect;
 import static com.example.demo.Dbase.insertUser;
 
 public class groupController implements Initializable {
+
 
     @FXML
     private VBox membersArea;
@@ -35,6 +34,8 @@ public class groupController implements Initializable {
     static int selectedGroupId;
     @FXML
     private TextArea postContentTextArea;
+    @FXML
+    private VBox admins;
     private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
 
     @Override
@@ -43,7 +44,8 @@ public class groupController implements Initializable {
         // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
         // Load posts from the database
         loadPostsFromDatabase();
-        getGroupMembersList(1);
+        getGroupMembersList(selectedGroupId, true);
+        setAdmins();
 
     }
     public void returnFeed(ActionEvent event) throws IOException {
@@ -64,7 +66,7 @@ public class groupController implements Initializable {
         int userId = UserSession.getInstance().userId;
         int groupId = selectedGroupId; // Implement this to get the current group ID
 
-        if (isUserGroupMember(userId, groupId)) {
+        if (isGroupMember(userId, getGroupMembersList(groupId, false))) {
             Parent newPage = FXMLLoader.load(getClass().getResource("groupPostWrite.fxml"));
             Scene newPageScene = new Scene(newPage);
 
@@ -78,23 +80,11 @@ public class groupController implements Initializable {
         }
     }
 
-    private boolean isUserGroupMember(int userId, int groupId) {
-        String sql = "SELECT users_array FROM groups WHERE id = ?";
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-
-            preparedStatement.setInt(1, groupId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    String usersArray = resultSet.getString("users_array");
-                    // Assuming users_array is stored as a comma-separated string of user IDs
-                    List<String> userList = Arrays.asList(usersArray.split(","));
-                    return userList.contains(String.valueOf(userId));
-                }
+    public boolean isGroupMember(int userId, int[] usersArray) {
+        for (int id : usersArray) {
+            if (id == userId) {
+                return true;
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert("Database Error", "An error occurred while checking group membership.");
         }
         return false;
     }
@@ -137,7 +127,7 @@ public class groupController implements Initializable {
         }
     }
 
-    public int[] getGroupMembersList(int groupId) {
+    public int[] getGroupMembersList(int groupId, boolean initiliazable) {
         int[] groupMembers = {};
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             // Step 1: Retrieve the usersArray for the given group ID
@@ -146,7 +136,7 @@ public class groupController implements Initializable {
             preparedStatement.setInt(1, groupId);
             ResultSet resultSet = preparedStatement.executeQuery();
 
-            if (resultSet.next()) {
+            while (resultSet.next()) {
                 String usersArray = resultSet.getString("users_array");
 
                 if (usersArray != null && !usersArray.isEmpty()) {
@@ -154,52 +144,52 @@ public class groupController implements Initializable {
                 } else {
                     System.out.println("Group has no members listed.");
                 }
-            } else {
-                System.out.println("No group found with the ID: " + groupId);
+
+                if(!initiliazable){
+                    return groupMembers;
+                }
+
+                for (int memberId : groupMembers) {
+                    Label memberLabel = new Label("Member Name: " + fetchUsernameById(conn, memberId));
+                    try {
+                        membersArea.getChildren().add(memberLabel);
+                    } catch (NullPointerException e) {
+                        System.err.println("postContainer is null: " + e.getMessage());
+                    }
+                }
             }
 
             // Fetch and display usernames for each member ID
-            for (int memberId : groupMembers) {
-                Label memberLabel = new Label("Member Name: " + fetchUsernameById(conn, memberId));
-                membersArea.getChildren().add(memberLabel);
-            }
 
-            resultSet.close();
-            preparedStatement.close();
+
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return groupMembers;
     }
-    public static int[] convertStringToArray(String input) {
-        // Remove square brackets
-        input = input.replaceAll("\\[", "").replaceAll("\\]", "");
 
-        // Split the string by commas
-        String[] stringArray = input.split(",");
 
-        // Convert the string array to an int array
-        int[] intArray = new int[stringArray.length];
-        for (int i = 0; i < stringArray.length; i++) {
-            intArray[i] = Integer.parseInt(stringArray[i].trim());
-        }
-
-        return intArray;
-    }
 
     private void loadPostsFromDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            String query = "SELECT * FROM group_posts ORDER BY post_id DESC";
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
+            String sql = "SELECT * FROM group_posts WHERE group_id = ? ORDER BY post_id DESC";
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, selectedGroupId);
+            ResultSet resultSet = statement.executeQuery();
+
+
+
+
 
             // Iterate over the result set and create post components
             while (resultSet.next()) {
+                int postID = resultSet.getInt("post_id");
                 int user_Id = resultSet.getInt("owner_id");
+                String username = fetchUsernameById(conn, user_Id);
                 String content = resultSet.getString("text");
 
-                // Fetch the username based on the userId
-                String username = fetchUsernameById(conn, user_Id);
+
 
                 // Create a post component
                 TitledPane postComponent = createPostComponent(username, content);
@@ -405,6 +395,47 @@ public class groupController implements Initializable {
         } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
+    }
+    public void setAdmins(){
+        int[] admin_ids = {};
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String sql = "SELECT group_admins FROM groups WHERE id = ?";
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, selectedGroupId);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String adminName = resultSet.getString("group_admins");
+                admin_ids = convertStringToArray(adminName);
+                for (int admin : admin_ids) {
+                    Label adminLabel = new Label( fetchUsernameById(conn,admin));
+                    try {
+                        admins.getChildren().add(adminLabel);
+                    } catch (NullPointerException e) {
+                        System.err.println("postContainer is null: " + e.getMessage());
+                    }
+                }
+
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public static int[] convertStringToArray(String input) {
+        // Remove square brackets
+        input = input.replaceAll("\\[", "").replaceAll("\\]", "");
+
+        // Split the string by commas
+        String[] stringArray = input.split(",");
+
+        // Convert the string array to an int array
+        int[] intArray = new int[stringArray.length];
+        for (int i = 0; i < stringArray.length; i++) {
+            intArray[i] = Integer.parseInt(stringArray[i].trim());
+        }
+
+        return intArray;
     }
 
     public static void main(String[] args) {

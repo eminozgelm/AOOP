@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -233,6 +234,8 @@ public class wallController implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+
 
     public void addFriend(ActionEvent event) {
         String sql = "UPDATE users SET friend_list = " +

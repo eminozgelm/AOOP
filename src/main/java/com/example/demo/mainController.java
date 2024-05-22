@@ -3,6 +3,7 @@ package com.example.demo;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -18,12 +19,15 @@ import javafx.scene.input.MouseEvent;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.*;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 public class mainController implements Initializable {
 
     private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
 
+    @FXML
+    private VBox groupContainer;
     @FXML
     private VBox friendsArea;
     @FXML
@@ -61,9 +65,11 @@ public class mainController implements Initializable {
         // Load posts from the database
         loadPostsFromDatabase();
         getFriendList(UserSession.getInstance().getUserId());
+        displayUserGroups(UserSession.getInstance().getUserId());
     }
 
     public  int[] getFriendList(int userId) {
+
         int[] friends = {};
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             // Step 1: Retrieve the friend list for the given user ID
@@ -94,11 +100,38 @@ public class mainController implements Initializable {
 
             for (int friendId : friends) {
                 Label friendLabel = new Label("Friend ID: " + fetchUsernameById(conn,friendId));
-                friendsArea.getChildren().add(friendLabel);
+
+
+                friendLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(javafx.scene.input.MouseEvent event) {
+                        wallController.seenUser = friendId;
+                        wallController.enableProfileWall = 2;
+                        Parent home_page = null;
+                        try {
+                            home_page = FXMLLoader.load(getClass().getResource("othersWall.fxml"));
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                        Scene hp_scene = new Scene(home_page);
+                        Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                        app_stage.setScene(hp_scene);
+                        app_stage.show();
+
+                    }
+                });
+
+
+
+
+
+
+                try {
+                    friendsArea.getChildren().add(friendLabel);
+                } catch (NullPointerException e) {
+                    System.err.println("postContainer is null: " + e.getMessage());
+                }
             }
-
-
-
 
             resultSet.close();
             preparedStatement.close();
@@ -454,5 +487,68 @@ public class mainController implements Initializable {
 
 
 
+    public void displayUserGroups(int userId) {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String sql = "SELECT group_name, users_array FROM groups";
+            PreparedStatement statement = conn.prepareStatement(sql);
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                String groupName = resultSet.getString("group_name");
+                String usersArrayStr = resultSet.getString("users_array");
+
+                // Convert users_array string to an integer array
+                String[] userIdsStr = usersArrayStr.replaceAll("[\\[\\]]", "").split(",");
+
+                // Convert string user IDs to integers
+                int[] usersArray = Arrays.stream(userIdsStr)
+                        .mapToInt(Integer::parseInt)
+                        .toArray();
+
+                // Check if the user ID exists in the users_array
+                if (Arrays.stream(usersArray).anyMatch(id -> id == userId)) {
+                    Label groupLabel = new Label(groupName);
+                    groupLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                        @Override
+                        public void handle(javafx.scene.input.MouseEvent event) {
+                            int groupId = getGroupIdByName(groupName);
+                            groupController.selectedGroupId = groupId;
+                            Parent home_page = null;
+                            try {
+                                home_page = FXMLLoader.load(getClass().getResource("groupPage.fxml"));
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            Scene hp_scene = new Scene(home_page);
+                            Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                            app_stage.setScene(hp_scene);
+                            app_stage.show();
+                            // Open a new page here
+                            ; // Pass group name as a parameter
+                        }
+                    });
+                    try {
+                        groupContainer.getChildren().add(groupLabel);
+                    } catch (NullPointerException e) {
+                        System.err.println("postContainer is null: " + e.getMessage());
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isUserInArray(String usersArray, int userId) {
+        // Assuming usersArray is a comma-separated string of user IDs
+        String[] userIDs = usersArray.split(",");
+        for (String id : userIDs) {
+            if (id.trim().equals(String.valueOf(userId))) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
