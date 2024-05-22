@@ -4,11 +4,13 @@ public class Group {
     private String groupName;
     private int[] usersArray;
 
+    private int groupID;
     private int[] groupAdmins;
-    public Group(String groupName, int[] usersArray, int[] groupAdmins) {
+    public Group(String groupName, int[] usersArray, int[] groupAdmins, int groupID) {
         this.groupName = groupName;
         this.usersArray = usersArray;
         this.groupAdmins = groupAdmins;
+        this.groupID = groupID;
     }
 
     public String getGroupName() {
@@ -34,6 +36,10 @@ public class Group {
     public void setGroupAdmins(int[] groupAdmins) {
         this.groupAdmins = groupAdmins;
     }
+
+    public int getGroupID() {return groupID; }
+
+    public void setGroupID(int groupID){this.groupID = groupID;}
 
 
 }

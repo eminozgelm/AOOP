@@ -59,7 +59,6 @@ public class groupController implements Initializable {
     @FXML
     private VBox postContainer;
     static int selectedGroupId;
-
     @FXML
     private TextArea postContentTextArea;
     @FXML
@@ -97,8 +96,7 @@ public class groupController implements Initializable {
         int userId = UserSession.getInstance().userId;
         int groupId = selectedGroupId; // Implement this to get the current group ID
 
-
-        if (isGroupMember(userId, getGroupMembersList(groupId, false)) || isAdmin()) {
+        if (isGroupMember(userId, getGroupMembersList(groupId, false))) {
             Parent newPage = FXMLLoader.load(getClass().getResource("groupPostWrite.fxml"));
             Scene newPageScene = new Scene(newPage);
 
@@ -133,9 +131,9 @@ public class groupController implements Initializable {
     private void publishPost(ActionEvent event) throws IOException {
         int userID = UserSession.getInstance().getUserId();
         String postContent = postContentTextArea.getText();
-        // Call method to write post data to the database
-        writePostToDatabase(selectedGroupId,userID, postContent);
 
+        // Call method to write post data to the database
+        writePostToDatabase(1,userID, postContent);
 
     }
 
@@ -331,7 +329,7 @@ public class groupController implements Initializable {
                 int[] groupAdmins = new Gson().fromJson(groupAdminsJson, arrayType);
                 resultSet.close();
                 preparedStatement.close();
-                return new Group(name, usersArray, groupAdmins);
+                return new Group(name, usersArray, groupAdmins, selectedGroupId);
             }
         } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
@@ -401,7 +399,7 @@ public class groupController implements Initializable {
             String insertPostSQL = "INSERT INTO group_posts (group_name, group_id, owner_id, text) VALUES (?, ?, ?, ?)";
             PreparedStatement preparedStatement = conn.prepareStatement(insertPostSQL);
 
-            preparedStatement.setString(1, post.getGroupName());
+            preparedStatement.setInt(1, post.getGroupID());
             preparedStatement.setInt(2, post.getOwnerId());
             preparedStatement.setString(3, post.getText());
             preparedStatement.executeUpdate();
@@ -471,47 +469,7 @@ public class groupController implements Initializable {
         return intArray;
     }
 
-    public static void main(String[] args) {
-        // Assume user is authenticated and their ID is set in UserSession
-        int authenticatedUserId = UserSession.getInstance().getUserId();
 
-        Connection conn = connect();
-        if (conn != null) {
-            try {
-                // Step 1: Create the necessary tables if they don't exist
-
-                // Step 2: Insert sample users
-                insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", new ArrayList<>(),0);
-                insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", new ArrayList<>(),0);
-
-                // Step 3: Insert a sample group
-                Group engineersGroup = new Group("EngineersGroup", new int[]{1, 2}, new int[]{authenticatedUserId}); // Group with user IDs 1 and 2, and admin with authenticated user ID
-                Group csGroup = new Group("CSGroup", new int[]{1, 2}, new int[]{authenticatedUserId}); // Group with user IDs 1 and 2, and admin with authenticated user ID
-                insertGroup(conn, engineersGroup);
-                insertGroup(conn, csGroup);
-
-                // Step 4: Update group users (add user with ID 3 to the EngineersGroup)
-                updateUserInGroup(conn, "EngineersGroup", 3, true, authenticatedUserId); // Add user with ID 3 to the EngineersGroup
-
-                // Step 5: Update group users (remove user with ID 1 from the CSGroup)
-                updateUserInGroup(conn, "CSGroup", 1, false, authenticatedUserId); // Remove user with ID 1 from the CSGroup
-
-                // Step 6: Create group posts
-                GroupPost post1 = new GroupPost(engineersGroup.getGroupName(), authenticatedUserId, "Hello Engineers!");
-                GroupPost post2 = new GroupPost(csGroup.getGroupName(), authenticatedUserId, "Hello CS!"); //GROUPPOSTUN GROUP ID OLARAK DEGIL ISIM OLARAK AL !!!!!!!!
-
-
-                // Step 7: Insert group posts into the database
-                insertGroupPost(conn, post1);
-                insertGroupPost(conn, post2);
-
-                // Step 8: Close the connection
-                conn.close();
-            } catch (SQLException e) {
-                System.err.println("Error: " + e.getMessage());
-            }
-        }
-    }
 
     public static String convertArrayListToString(List<Integer> arrayList) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -546,7 +504,7 @@ public class groupController implements Initializable {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-}
+    }
 
 
 
@@ -642,89 +600,87 @@ public class groupController implements Initializable {
 
     @FXML
     public void handleRemoveButton(){
-
-
         boolean x = isAdmin();
-
         removeUserButton.setVisible(x);
 
-        if(x){
-
         removeUserButton.setOnAction(event -> {
+            if (isAdmin()) {
+                TextInputDialog dialog = new TextInputDialog();
+                dialog.setTitle("Remove User");
+                dialog.setHeaderText("Enter the username to remove:");
+                dialog.setContentText("Username:");
 
-            TextInputDialog dialog = new TextInputDialog();
-            dialog.setTitle("Remove User");
-            dialog.setHeaderText("Enter the username to remove:");
-            dialog.setContentText("Username:");
+                // Show remove user dialog and get the input
+                String usernameToRemove = dialog.showAndWait().orElse(null);
+                if (usernameToRemove != null && !usernameToRemove.isEmpty()) {
+                    int userIdToRemove = mainController.getUserIdByUsername(usernameToRemove);
+                    if (userIdToRemove != -1) {
+                        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+                            // Get the current users_array value
+                            String selectQuery = "SELECT users_array FROM groups WHERE id = ?";
+                            PreparedStatement selectStatement = conn.prepareStatement(selectQuery);
+                            selectStatement.setInt(1, selectedGroupId);
+                            ResultSet resultSet = selectStatement.executeQuery();
 
-            // Show remove user dialog and get the input
-            String usernameToRemove = dialog.showAndWait().orElse(null);
-            if (usernameToRemove != null && !usernameToRemove.isEmpty()) {
-                int userIdToRemove = mainController.getUserIdByUsername(usernameToRemove);
-                if (userIdToRemove != -1) {
-                    try (Connection conn = DriverManager.getConnection(DB_URL)) {
-                        // Get the current users_array value
-                        String selectQuery = "SELECT users_array FROM groups WHERE id = ?";
-                        PreparedStatement selectStatement = conn.prepareStatement(selectQuery);
-                        selectStatement.setInt(1, selectedGroupId);
-                        ResultSet resultSet = selectStatement.executeQuery();
+                            if (resultSet.next()) {
+                                String currentUsersArray = resultSet.getString("users_array");
+                                // Remove the userId from the users_array
+                                String updatedUsersArray = currentUsersArray
+                                        .replaceAll("\\[" + userIdToRemove + ",", "") // Remove if at the beginning
+                                        .replaceAll("," + userIdToRemove + ",", ",") // Remove if in the middle
+                                        .replaceAll("," + userIdToRemove + "\\]", "]"); // Remove if at the end
 
-                        if (resultSet.next()) {
-                            String currentUsersArray = resultSet.getString("users_array");
-                            // Remove the userId from the users_array
-                            String updatedUsersArray = currentUsersArray
-                                    .replaceAll("\\[" + userIdToRemove + ",", "") // Remove if at the beginning
-                                    .replaceAll("," + userIdToRemove + ",", ",") // Remove if in the middle
-                                    .replaceAll("," + userIdToRemove + "\\]", "]"); // Remove if at the end
+                                // Update the users_array in the group_database table
+                                String updateQuery = "UPDATE groups SET users_array = ? WHERE id = ?";
+                                PreparedStatement updateStatement = conn.prepareStatement(updateQuery);
+                                updateStatement.setString(1, updatedUsersArray);
+                                updateStatement.setInt(2, selectedGroupId);
+                                updateStatement.executeUpdate();
 
-                            // Update the users_array in the group_database table
-                            String updateQuery = "UPDATE groups SET users_array = ? WHERE id = ?";
-                            PreparedStatement updateStatement = conn.prepareStatement(updateQuery);
-                            updateStatement.setString(1, updatedUsersArray);
-                            updateStatement.setInt(2, selectedGroupId);
-                            updateStatement.executeUpdate();
+                                System.out.println("User deleted from the group successfully.");
+                            }
 
-                            System.out.println("User deleted from the group successfully.");
+                            resultSet.close();
+                            selectStatement.close();
+
+                        } catch (SQLException e) {
+                            e.printStackTrace();
                         }
-
-                        resultSet.close();
-                        selectStatement.close();
-
-                    } catch (SQLException e) {
-                        e.printStackTrace();
                     }
+                    // Update database or perform any other necessary action
+                    showAlert("User Removed", "User " + usernameToRemove + " has been removed from the group.");
+                } else {
+                    showAlert("User Not Found", "User " + usernameToRemove + " is not in the group.");
                 }
-                // Update database or perform any other necessary action
-                showAlert("User Removed", "User " + usernameToRemove + " has been removed from the group.");
-            } else {
-                showAlert("User Not Found", "User " + usernameToRemove + " is not in the group.");
+            }  else {
+                showAlert("Access Denied", "You do not have permission to remove users from the group.");
             }
+
         });
-        }
     }
 
     private boolean isAdmin() {
-            try (Connection conn = DriverManager.getConnection(DB_URL)) {
-                String sql = "SELECT group_admins FROM groups WHERE id = ?";
-                PreparedStatement statement = conn.prepareStatement(sql);
-                statement.setInt(1, selectedGroupId);
-                ResultSet resultSet = statement.executeQuery();
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String sql = "SELECT group_admins FROM groups WHERE id = ?";
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, selectedGroupId);
+            ResultSet resultSet = statement.executeQuery();
 
-                if (resultSet.next()) {
-                    String adminIdsString = resultSet.getString("group_admins");
-                    int[] adminIds = convertStringToArray(adminIdsString);
-                    for (int adminId : adminIds) {
-                        System.out.println(wallController.user.userId);
-                        System.out.println(adminId);
-                        if (adminId == wallController.user.userId) {
-                            return true;
-                        }
+            if (resultSet.next()) {
+                String adminIdsString = resultSet.getString("group_admins");
+                int[] adminIds = convertStringToArray(adminIdsString);
+                for (int adminId : adminIds) {
+                    System.out.println(wallController.user.userId);
+                    System.out.println(adminId);
+                    if (adminId == wallController.user.userId) {
+                        return true;
                     }
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
-            return false;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
 
     }
 
