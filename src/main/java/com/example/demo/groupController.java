@@ -2,6 +2,8 @@ package com.example.demo;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +12,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -25,6 +28,26 @@ import static com.example.demo.Dbase.connect;
 import static com.example.demo.Dbase.insertUser;
 
 public class groupController implements Initializable {
+
+    @FXML
+    private Button adminAdd;
+
+    @FXML
+    private Button finish;
+
+    private List<Integer> usersArray;
+    private List<Integer> adminsArray;
+
+    @FXML
+    private Button userAdd;
+    @FXML
+    private TextField groupName;
+
+    @FXML
+    private ListView<String> resultsView;
+
+    @FXML
+    private TextField searchField;
 
 
     @FXML
@@ -46,8 +69,10 @@ public class groupController implements Initializable {
         loadPostsFromDatabase();
         getGroupMembersList(selectedGroupId, true);
         setAdmins();
-
+        createNewArrays();
     }
+
+
     public void returnFeed(ActionEvent event) throws IOException {
         Parent newPage = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
         Scene newPageScene = new Scene(newPage);
@@ -479,5 +504,136 @@ public class groupController implements Initializable {
             }
         }
     }
+
+    public static String convertArrayListToString(List<Integer> arrayList) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("[");
+        for (int i = 0; i < arrayList.size(); i++) {
+            stringBuilder.append(arrayList.get(i));
+            if (i < arrayList.size() - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        stringBuilder.append("]");
+        return stringBuilder.toString();
+    }
+
+
+    @FXML
+    private void finish(){
+        if(adminsArray == null) {
+            adminsArray.add(wallController.user.userId);
+        }
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String gp = groupName.getText();
+
+            String insertQuery = "INSERT INTO groups (group_name, users_array, group_admins) VALUES (?, ?, ?)";
+            PreparedStatement preparedStatement = conn.prepareStatement(insertQuery);
+            preparedStatement.setString(1, gp);
+            preparedStatement.setString(2, convertArrayListToString(usersArray));
+            preparedStatement.setString(3, convertArrayListToString(adminsArray));
+            preparedStatement.executeUpdate();
+            preparedStatement.close();
+            showAlert("Group Created", "The group has been successfully created.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+}
+
+
+
+
+
+    private void createNewArrays(){
+        usersArray = new ArrayList<>();
+        adminsArray = new ArrayList<>();
+    }
+
+    @FXML
+    public void handleSearch(){
+        setupSearch(searchField, resultsView);
+    }
+
+    @FXML
+    public void buttonHandle(ActionEvent ev){
+        userAdd.setOnAction(event -> {
+            String selectedUser = searchField.getText();
+            if (!selectedUser.isEmpty()) {
+                int userId = mainController.getUserIdByUsername(selectedUser);
+                if (userId == -1) {
+                    showAlert("User not found", "User " + selectedUser + " does not exist.");
+                } else if (usersArray.contains(userId)) {
+                    showAlert("User already added", "User " + selectedUser + " is already added to the group.");
+                } else {
+                    usersArray.add(userId);
+                    showAlert("User added", "User " + selectedUser + " has been added to the group.");
+                }
+            }
+        });
+
+        adminAdd.setOnAction(event -> {
+            String selectedAdmin = searchField.getText();
+            if (!selectedAdmin.isEmpty()) {
+                int adminId = mainController.getUserIdByUsername(selectedAdmin);
+                if (adminId == -1) {
+                    showAlert("User not found", "User " + selectedAdmin + " does not exist.");
+                } else if (adminsArray.contains(adminId)) {
+                    showAlert("Admin already added", "User " + selectedAdmin + " is already added as an admin.");
+                } else {
+                    adminsArray.add(adminId);
+                    showAlert("Admin added", "User " + selectedAdmin + " has been added as an admin.");
+                }
+            }
+        });
+    }
+
+    public List<String> fetchUsernames(String searchTerm) {
+        List<String> usernames = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String query = "SELECT username FROM users WHERE username LIKE ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            preparedStatement.setString(1, "%" + searchTerm + "%");
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                usernames.add(resultSet.getString("username"));
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return usernames;
+    }
+
+    // Set up search functionality
+    public void setupSearch(TextField searchField, ListView<String> searchResults) {
+        ObservableList<String> suggestions = FXCollections.observableArrayList();
+        searchResults.setItems(suggestions);
+
+        searchField.addEventHandler(KeyEvent.KEY_RELEASED, event -> {
+            String searchTerm = searchField.getText();
+            if (searchTerm.length() >= 2) { // Start suggesting after 2 characters
+                List<String> matches = fetchUsernames(searchTerm);
+                suggestions.setAll(matches);
+            } else {
+                suggestions.clear();
+            }
+        });
+
+        searchResults.setOnMouseClicked(event -> {
+            String selectedUser = searchResults.getSelectionModel().getSelectedItem();
+            if (selectedUser != null) {
+                searchField.setText(selectedUser);
+                searchResults.getItems().clear();
+            }
+        });
+    }
+
+
+
+
+
 
 }

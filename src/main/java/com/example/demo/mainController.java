@@ -227,7 +227,7 @@ public class mainController implements Initializable {
         }
     }
 
-    private int getUserIdByUsername(String username) {
+    public static int getUserIdByUsername(String username) {
         int userId = -1; // Default value indicating user not found
         String sql = "SELECT user_id FROM users WHERE username = ?";
 
@@ -243,7 +243,7 @@ public class mainController implements Initializable {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert("Database Error", "An error occurred while fetching the user ID.");
+            // showAlert("Database Error", "An error occurred while fetching the user ID.");
         }
 
         return userId;
@@ -540,6 +540,7 @@ public class mainController implements Initializable {
         }
     }
 
+
     private boolean isUserInArray(String usersArray, int userId) {
         // Assuming usersArray is a comma-separated string of user IDs
         String[] userIDs = usersArray.split(",");
@@ -550,5 +551,19 @@ public class mainController implements Initializable {
         }
         return false;
     }
+
+    @FXML
+    private void openCreateGroup(ActionEvent e) throws IOException {
+        Parent newPage = FXMLLoader.load(getClass().getResource("createGroup.fxml"));
+        Scene newPageScene = new Scene(newPage);
+
+        // Create a new stage for the new window
+        Stage newStage = new Stage();
+        newStage.setScene(newPageScene);
+        newStage.setTitle("Post");
+        newStage.show();
+    }
+
+
 
 }
