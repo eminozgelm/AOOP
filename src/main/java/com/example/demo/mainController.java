@@ -409,6 +409,7 @@ public class mainController implements Initializable {
         if (selectedGroup != null) {
             // Get group_id of the selected group
             int groupId = getGroupIdByName(selectedGroup);
+            groupController.selectedGroupId = groupId;
             if (groupId != -1) {
                 // Load the new page with selected group details
                 try {

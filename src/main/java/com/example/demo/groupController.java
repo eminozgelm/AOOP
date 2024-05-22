@@ -19,6 +19,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -59,15 +60,52 @@ public class groupController implements Initializable {
     }
     @FXML
     public void openPostWindow(ActionEvent event) throws IOException {
-        Parent newPage = FXMLLoader.load(getClass().getResource("groupPostWrite.fxml"));
-        Scene newPageScene = new Scene(newPage);
 
-        // Create a new stage for the new window
-        Stage newStage = new Stage();
-        newStage.setScene(newPageScene);
-        newStage.setTitle("Post");
-        newStage.show();
+        int userId = UserSession.getInstance().userId;
+        int groupId = selectedGroupId; // Implement this to get the current group ID
+
+        if (isUserGroupMember(userId, groupId)) {
+            Parent newPage = FXMLLoader.load(getClass().getResource("groupPostWrite.fxml"));
+            Scene newPageScene = new Scene(newPage);
+
+            // Create a new stage for the new window
+            Stage newStage = new Stage();
+            newStage.setScene(newPageScene);
+            newStage.setTitle("Post");
+            newStage.show();
+        } else {
+            showAlert("Access Denied", "You are not a member of this group and cannot post content.");
+        }
     }
+
+    private boolean isUserGroupMember(int userId, int groupId) {
+        String sql = "SELECT users_array FROM groups WHERE id = ?";
+        try (Connection conn = DriverManager.getConnection(DB_URL);
+             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, groupId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    String usersArray = resultSet.getString("users_array");
+                    // Assuming users_array is stored as a comma-separated string of user IDs
+                    List<String> userList = Arrays.asList(usersArray.split(","));
+                    return userList.contains(String.valueOf(userId));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Database Error", "An error occurred while checking group membership.");
+        }
+        return false;
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR, content, ButtonType.OK);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
 
     @FXML
     private void publishPost(ActionEvent event) throws IOException {

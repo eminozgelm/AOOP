@@ -226,11 +226,6 @@ public class wallController implements Initializable {
         return titledPane;
     }
 
-
-
-
-
-
     private void showAlert(Alert.AlertType alertType, String title, String content) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
@@ -239,34 +234,22 @@ public class wallController implements Initializable {
         alert.showAndWait();
     }
 
+    public void addFriend(ActionEvent event) {
+        String sql = "UPDATE users SET friend_list = " +
+                "CASE WHEN friend_list IS NULL THEN ? " +
+                "ELSE friend_list || ',' ||  ? END " + // Use '||' for concatenation
+                "WHERE user_id = ?";
 
-    @FXML
-    private void handleFriendAction() {
-        updateFriendButtonStatus(seenUser);
-    }
-
-    private boolean isFriend(int userId, int friendId) {
-        String sql = "SELECT * FROM friend_list WHERE user_id = ? AND friend_id = ?";
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, friendId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                return resultSet.next(); // If any row exists, the users are friends
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "error", "An error occurred while checking friendship.");
-        }
-        return false;
-    }
 
-    private void addFriend(int userId, int friendId) {
-        String sql = "INSERT INTO friends_list (user_id, friend_id) VALUES (?, ?)";
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, friendId);
+            int friendId = seenUser;
+            int userId = user.userId;
+            String friendIdStr = String.valueOf(friendId);
+            preparedStatement.setString(1, friendIdStr);
+            preparedStatement.setString(2, friendIdStr);
+            preparedStatement.setInt(3, userId);
+
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
                 System.out.println("Friend added successfully.");
@@ -275,42 +258,10 @@ public class wallController implements Initializable {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR,"Database Error", "An error occurred while adding friend.");
-        }
-    }
-
-    private void removeFriend(int userId, int friendId) {
-        String sql = "DELETE FROM friends_list WHERE user_id = ? AND friend_id = ?";
-        try (Connection conn = DriverManager.getConnection(DB_URL);
-             PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
-            preparedStatement.setInt(1, userId);
-            preparedStatement.setInt(2, friendId);
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Friend removed successfully.");
-            } else {
-                System.out.println("Failed to remove friend.");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
             showAlert(Alert.AlertType.ERROR,"Database Error", "An error occurred while removing friend.");
         }
     }
 
-    @FXML
-    private void updateFriendButtonStatus(int friendId) {
-        boolean isFriend = isFriend(user.userId, friendId);
-        friendButton.setText(isFriend ? "Remove Friend" : "Add Friend");
-        friendButton.setOnAction(event -> {
-            if (isFriend) {
-                removeFriend(user.userId, friendId);
-                updateFriendButtonStatus(friendId); // Update button text after removing friend
-            } else {
-                addFriend(user.userId, friendId);
-                updateFriendButtonStatus(friendId); // Update button text after adding friend
-            }
-        });
-    }
     public void goToProfile(ActionEvent event) throws IOException {
         Parent newPage = FXMLLoader.load(getClass().getResource("activeUserWall.fxml"));
         Scene newPageScene = new Scene(newPage);
