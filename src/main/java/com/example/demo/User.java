@@ -14,15 +14,25 @@ public class User {
 
     private int[] friendsArray;
 
-    boolean isHidden;
+    private int isHidden;
 
-    public User(String username, String password, String firstName, String lastName, String[] profileInfos, int[] friendsArray) {
+    public int getIsHidden() {
+        return isHidden;
+    }
+
+    public void setIsHidden(int isHidden) {
+        this.isHidden = isHidden;
+    }
+
+    public User(String username, String password, String emailAdress, String firstName, String lastName, String[] profileInfos, int[] friendsArray, int isHidden) {
         this.username = username;
         this.password = password;
+        this.emailAdress = emailAdress;
         this.firstName = firstName;
         this.lastName = lastName;
         this.profileInfos = profileInfos;
         this.friendsArray = friendsArray;
+        this.isHidden = isHidden;
     }
 
     public String getEmailAdress() {
@@ -75,13 +85,6 @@ public class User {
         this.lastName = lastName;
     }
 
-    public boolean isHidden() {
-        return isHidden;
-    }
-
-    public void setHidden(boolean hidden) {
-        isHidden = hidden;
-    }
 
     public int[] getFriendsArray() {
         return friendsArray;

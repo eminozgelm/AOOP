@@ -16,7 +16,7 @@ public class Dbase {
             conn = DriverManager.getConnection("jdbc:sqlite:your_database_name.db");
             System.out.println("Connection to SQLite database successful.");
         } catch (SQLException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error connecting to database: " + e.getMessage());
         }
         return conn;
     }
@@ -46,7 +46,7 @@ public class Dbase {
             resultSet.close();
             preparedStatement.close();
         } catch (SQLException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error authenticating user: " + e.getMessage());
         }
         return userId;
     }
@@ -68,39 +68,39 @@ public class Dbase {
             statement.executeUpdate(createUserTableSQL);
             statement.close();
         } catch (SQLException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error creating users table: " + e.getMessage());
         }
     }
 
     // Inserting a user into the users table
     public static void insertUser(Connection conn, String username, String email, String passwordHash,
-                                  String firstName, String lastName, String profileInfo, List<Integer> friends, boolean isHidden) {
+                                  String firstName, String lastName, String profileInfo, List<Integer> friends, int isHidden) {
         try {
-            String friendListJson = new Gson().toJson(friends); // Convert friend list to JSON
+            User user = new User(username, email, passwordHash, firstName, lastName, profileInfo.split(","), friends.stream().mapToInt(i -> i).toArray(),isHidden);
+            String friendListJson = new Gson().toJson(friends);
+            String profileInfosJson = new Gson().toJson(profileInfo);// Convert friend list to JSON
             String insertUserSQL = "INSERT INTO users (username, email, password_hash, first_name, last_name, profile_info, friend_list, is_hidden) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = conn.prepareStatement(insertUserSQL);
-            preparedStatement.setString(1, username);
-            preparedStatement.setString(2, email);
-            preparedStatement.setString(3, passwordHash);
-            preparedStatement.setString(4, firstName);
-            preparedStatement.setString(5, lastName);
-            preparedStatement.setString(6, profileInfo);
+            preparedStatement.setString(1, user.getUsername());
+            preparedStatement.setString(2, user.getEmailAdress());
+            preparedStatement.setString(3, user.getPassword());
+            preparedStatement.setString(4, user.getFirstName());
+            preparedStatement.setString(5, user.getLastName());
+            preparedStatement.setString(6, profileInfosJson);
             preparedStatement.setString(7, friendListJson);
-            preparedStatement.setBoolean(8, isHidden);
+            preparedStatement.setInt(8, user.getIsHidden());
             preparedStatement.executeUpdate();
             preparedStatement.close();
             System.out.println("User inserted successfully.");
 
             // Add user to the usersList
-            User user = new User(username, passwordHash, firstName, lastName, profileInfo.split(","), friends.stream().mapToInt(i -> i).toArray());
-            user.setEmailAdress(email);
-            user.setHidden(isHidden);
             usersList.add(user);
         } catch (SQLException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error inserting user: " + e.getMessage());
         }
     }
+
 
     // Removing a user from the users table by username
     public static void removeUser(Connection conn, String username) {
@@ -118,7 +118,7 @@ public class Dbase {
             }
             preparedStatement.close();
         } catch (SQLException e) {
-            System.err.println("Error: " + e.getMessage());
+            System.err.println("Error removing user: " + e.getMessage());
         }
     }
 
@@ -132,12 +132,14 @@ public class Dbase {
             // Step 1: Create the users table if it doesn't exist
             createUsersTable(conn);
 
-            // Step 2: Insert sample users with friend connections
-            insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", List.of(2, 3), false);
-            insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", List.of(1, 3), false);
-            insertUser(conn, "user3", "user3@example.com", "password_hash_3", "Alice", "Johnson", "Graphic Designer", List.of(1, 2), true);
-            insertUser(conn, "user4", "user4@example.com", "password_hash_4", "Bob", "Johnson", "Accountant", List.of(5), false);
-            insertUser(conn, "user5", "user5@example.com", "password_hash_5", "Emily", "Brown", "Teacher", List.of(4), true);
+            // Step 2:
+            // Insert sample users with friend connections
+            insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", List.of(2, 3), 0);
+            insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", List.of(1, 3), 0);
+            insertUser(conn, "user3", "user3@example.com", "password_hash_3", "Alice", "Johnson", "Graphic Designer", List.of(1, 2), 0);
+            insertUser(conn, "user4", "user4@example.com", "password_hash_4", "Bob", "Johnson", "Accountant", List.of(5), 0);
+            insertUser(conn, "user5", "user5@example.com", "password_hash_5", "Emily", "Brown", "Teacher", List.of(4), 1);
+            insertUser(conn, "xdaaaa", "xdaaaa", "xdaaaa", "xdaaaa", "xdaaaa", "xdaaaa", List.of(4), 0);
 
             // Step 3: Close the connection
             try {
@@ -146,7 +148,5 @@ public class Dbase {
                 System.err.println("Error closing connection: " + e.getMessage());
             }
         }
-
-
     }
 }

@@ -585,13 +585,14 @@ public class mainController implements Initializable {
 
     public void displayUserGroups(int userId) {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            String sql = "SELECT group_name, users_array FROM groups";
+            String sql = "SELECT group_name, users_array, group_admins FROM groups";
             PreparedStatement statement = conn.prepareStatement(sql);
             ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 String groupName = resultSet.getString("group_name");
                 String usersArrayStr = resultSet.getString("users_array");
+                String adminArrayStr = resultSet.getString("group_admins");
 
                 // Convert users_array string to an integer array
                 String[] userIdsStr = usersArrayStr.replaceAll("[\\[\\]]", "").split(",");
@@ -601,8 +602,15 @@ public class mainController implements Initializable {
                         .mapToInt(Integer::parseInt)
                         .toArray();
 
+                String[] admIdStr = adminArrayStr.replaceAll("[\\[\\]]", "").split(",");
+
+                // Convert string user IDs to integers
+                int[] adminArray = Arrays.stream(admIdStr)
+                        .mapToInt(Integer::parseInt)
+                        .toArray();
+
                 // Check if the user ID exists in the users_array
-                if (Arrays.stream(usersArray).anyMatch(id -> id == userId)) {
+                if (Arrays.stream(usersArray).anyMatch(id -> id == userId) || Arrays.stream(adminArray).anyMatch(id -> id == userId)) {
                     Label groupLabel = new Label(groupName);
                     groupLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
                         @Override

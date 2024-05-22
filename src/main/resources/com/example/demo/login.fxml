@@ -6,6 +6,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
@@ -16,24 +18,10 @@
    <children>
       <BorderPane layoutX="-3.0" prefHeight="650.0" prefWidth="1000.0">
          <left>
-            <VBox prefHeight="650.0" prefWidth="608.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
-               <children>
-                  <Label graphicTextGap="0.0" prefHeight="250.0" prefWidth="734.0" text="Connect, share, and discover with our social media platform. Join to engage with friends, share moments, and explore trends in real-time." textOverrun="CLIP" wrapText="true">
-                     <padding>
-                        <Insets left="150.0" right="150.0" top="100.0" />
-                     </padding>
-                     <VBox.margin>
-                        <Insets left="60.0" top="400.0" />
-                     </VBox.margin>
-                     <font>
-                        <Font name="Microsoft Sans Serif" size="12.0" />
-                     </font>
-                  </Label>
-               </children>
-            </VBox>
+            <VBox pickOnBounds="false" prefHeight="650.0" prefWidth="608.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER" />
          </left>
          <right>
-            <VBox maxHeight="650.0" maxWidth="398.0" prefHeight="650.0" prefWidth="398.0" style="-fx-background-color: #0066ff;" BorderPane.alignment="CENTER">
+            <VBox maxHeight="650.0" maxWidth="398.0" prefHeight="650.0" prefWidth="398.0" style="-fx-background-color: #2537e6;" BorderPane.alignment="CENTER">
                <children>
                   <TextField fx:id="userField" promptText="UserName or Email" style="-fx-background-radius: 50; -fx-padding: 10;">
                      <VBox.margin>
@@ -52,7 +40,7 @@
                      </font>
                   </PasswordField>
                   <ButtonBar prefHeight="40.0" prefWidth="200.0" />
-                <Button fx:id="enter" alignment="BOTTOM_CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#tryLogin" prefHeight="25.0" prefWidth="153.0" text="Login" textAlignment="CENTER">
+                  <Button fx:id="enter" alignment="BOTTOM_CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#tryLogin" prefHeight="25.0" prefWidth="153.0" text="Login" textAlignment="CENTER">
                      <VBox.margin>
                         <Insets left="125.0" />
                      </VBox.margin>
@@ -71,5 +59,18 @@
             </VBox>
          </right>
       </BorderPane>
+      <ImageView fitHeight="363.0" fitWidth="1006.0" pickOnBounds="true" preserveRatio="true" style="-fx-blend-mode: #2537e6;">
+         <image>
+            <Image url="@../../../img/logo.psd.png" />
+         </image>
+      </ImageView>
+      <Label alignment="CENTER" graphicTextGap="0.0" layoutY="246.0" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="404.0" prefWidth="605.0" style="-fx-border-color: #2537e6; -fx-border-width: 10;" text="Connect, share, and discover with our social media platform. Join to engage with friends, share moments, and explore trends in real-time." textOverrun="CLIP" wrapText="true">
+         <font>
+            <Font name="Microsoft Sans Serif" size="12.0" />
+         </font>
+         <padding>
+            <Insets bottom="100.0" left="100.0" right="100.0" top="100.0" />
+         </padding>
+      </Label>
    </children>
 </AnchorPane>
