@@ -5,29 +5,46 @@ import com.google.gson.reflect.TypeToken;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 
 import static com.example.demo.Dbase.connect;
 import static com.example.demo.Dbase.insertUser;
 
-public class groupController {
+public class groupController implements Initializable {
 
+    @FXML
+    private VBox membersArea;
+    @FXML
+    private VBox postContainer;
     static int selectedGroupId;
     @FXML
     private TextArea postContentTextArea;
     private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+
+        // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
+        // Load posts from the database
+        loadPostsFromDatabase();
+        getGroupMembersList(1);
+
+    }
     public void returnFeed(ActionEvent event) throws IOException {
         Parent newPage = FXMLLoader.load(getClass().getResource("mainPage.fxml"));
         Scene newPageScene = new Scene(newPage);
@@ -42,7 +59,7 @@ public class groupController {
     }
     @FXML
     public void openPostWindow(ActionEvent event) throws IOException {
-        Parent newPage = FXMLLoader.load(getClass().getResource("postWrite.fxml"));
+        Parent newPage = FXMLLoader.load(getClass().getResource("groupPostWrite.fxml"));
         Scene newPageScene = new Scene(newPage);
 
         // Create a new stage for the new window
@@ -80,6 +97,124 @@ public class groupController {
         } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
         }
+    }
+
+    public int[] getGroupMembersList(int groupId) {
+        int[] groupMembers = {};
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            // Step 1: Retrieve the usersArray for the given group ID
+            String query = "SELECT users_array FROM groups WHERE id = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(query);
+            preparedStatement.setInt(1, groupId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String usersArray = resultSet.getString("users_array");
+
+                if (usersArray != null && !usersArray.isEmpty()) {
+                    groupMembers = convertStringToArray(usersArray);
+                } else {
+                    System.out.println("Group has no members listed.");
+                }
+            } else {
+                System.out.println("No group found with the ID: " + groupId);
+            }
+
+            // Fetch and display usernames for each member ID
+            for (int memberId : groupMembers) {
+                Label memberLabel = new Label("Member Name: " + fetchUsernameById(conn, memberId));
+                membersArea.getChildren().add(memberLabel);
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return groupMembers;
+    }
+    public static int[] convertStringToArray(String input) {
+        // Remove square brackets
+        input = input.replaceAll("\\[", "").replaceAll("\\]", "");
+
+        // Split the string by commas
+        String[] stringArray = input.split(",");
+
+        // Convert the string array to an int array
+        int[] intArray = new int[stringArray.length];
+        for (int i = 0; i < stringArray.length; i++) {
+            intArray[i] = Integer.parseInt(stringArray[i].trim());
+        }
+
+        return intArray;
+    }
+
+    private void loadPostsFromDatabase() {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String query = "SELECT * FROM group_posts ORDER BY post_id DESC";
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(query);
+
+            // Iterate over the result set and create post components
+            while (resultSet.next()) {
+                int user_Id = resultSet.getInt("owner_id");
+                String content = resultSet.getString("text");
+
+                // Fetch the username based on the userId
+                String username = fetchUsernameById(conn, user_Id);
+
+                // Create a post component
+                TitledPane postComponent = createPostComponent(username, content);
+
+                // Add the post component to the postContainer
+                try {
+                    postContainer.getChildren().add(postComponent);
+                } catch (NullPointerException e) {
+                    System.err.println("postContainer is null: " + e.getMessage());
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String fetchUsernameById(Connection conn, int userId) {
+        String username = "";
+        String query = "SELECT username FROM users WHERE user_id = ?";
+
+        try (PreparedStatement preparedStatement = conn.prepareStatement(query)) {
+            preparedStatement.setInt(1, userId);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                username = resultSet.getString("username");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return username;
+    }
+
+    private TitledPane createPostComponent(String username, String content) {
+        TitledPane titledPane = new TitledPane();
+        titledPane.setText(username);
+
+        TextArea contentArea = new TextArea(content);
+        contentArea.setWrapText(true); // Enable text wrapping
+        contentArea.setEditable(false); // Make the text area non-editable
+
+        AnchorPane anchorPane = new AnchorPane();
+        anchorPane.getChildren().add(contentArea);
+
+        AnchorPane.setTopAnchor(contentArea, 0.0);
+        AnchorPane.setBottomAnchor(contentArea, 0.0);
+        AnchorPane.setLeftAnchor(contentArea, 0.0);
+        AnchorPane.setRightAnchor(contentArea, 0.0);
+
+        titledPane.setContent(anchorPane);
+
+        return titledPane;
     }
 
 

@@ -109,7 +109,7 @@
                   <ListView fx:id="resultsListView" layoutX="14.0" layoutY="441.0" prefHeight="102.0" prefWidth="149.0" visible="false" />
                </children>
             </AnchorPane>
-            <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
+            <ScrollPane hbarPolicy="NEVER" prefHeight="-1.0" prefWidth="-1.0">
                <content>
                   <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
                      <children>
@@ -136,6 +136,15 @@
                   <TextField fx:id="searchField2" layoutX="14.0" layoutY="413.0" onAction="#handleGroupearch" />
                   <Label layoutX="14.0" layoutY="376.0" prefHeight="17.0" prefWidth="149.0" text="Search Groups..." />
                   <ListView fx:id="groupResultsView" layoutX="14.0" layoutY="438.0" prefHeight="102.0" prefWidth="149.0" />
+                  <AnchorPane layoutY="56.0" prefHeight="324.0" prefWidth="231.0">
+                     <children>
+                        <ScrollPane hbarPolicy="NEVER" prefHeight="324.0" prefWidth="231.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <content>
+                              <VBox prefHeight="324.0" prefWidth="231.0" />
+                           </content>
+                        </ScrollPane>
+                     </children>
+                  </AnchorPane>
                </children>
             </AnchorPane>
          </items>
