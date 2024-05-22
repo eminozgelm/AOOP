@@ -60,15 +60,21 @@ public class mainController implements Initializable {
 
     @FXML
     private void handleSearch() {
-        String searchQuery = searchField.getText().trim();
-        if (searchQuery.isEmpty()) {
-            resultsListView.setItems(FXCollections.observableArrayList());
-            return;
-        }
 
-        // Fetch search results from the database
-        ObservableList<String> results = searchUsers(searchQuery);
-        resultsListView.setItems(results);
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            // Update the search results dynamically as the user types
+            String searchQuery = newValue.trim();
+            if (searchQuery.isEmpty()) {
+                resultsListView.setItems(FXCollections.observableArrayList());
+                resultsListView.setVisible(false);
+                return;
+            }
+
+            // Fetch search results from the database
+            ObservableList<String> results = searchUsers(searchQuery);
+            resultsListView.setVisible(true);
+            resultsListView.setItems(results);
+        });
 
         // Add click event handler to each item
         resultsListView.setOnMouseClicked(event -> handleResultClick(event));
@@ -96,6 +102,7 @@ public class mainController implements Initializable {
         return results;
     }
 
+
     private void handleResultClick(MouseEvent event) {
         String selectedUser = resultsListView.getSelectionModel().getSelectedItem();
         if (selectedUser != null) {
@@ -104,10 +111,9 @@ public class mainController implements Initializable {
             if (userId != -1) {
                 // Load the new page with selected user details
                 try {
+                    wallController.seenUser = userId;
+                    wallController.enableProfileWall = 2;
                     Parent home_page = FXMLLoader.load(getClass().getResource("othersWall.fxml"));
-                    wallController controller = new wallController();
-                    controller.seenUser = userId;
-                    controller.enableProfileWall = 2;
                     Scene hp_scene = new Scene(home_page);
                     Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
                     app_stage.setScene(hp_scene);
@@ -221,6 +227,7 @@ public class mainController implements Initializable {
         return titledPane;
     }
     public void goTooProfile(ActionEvent event) throws IOException {
+        wallController.enableProfileWall = 1;
         Parent newPage = FXMLLoader.load(getClass().getResource("activeUserWall.fxml"));
         Scene newPageScene = new Scene(newPage);
 
@@ -230,7 +237,7 @@ public class mainController implements Initializable {
         // Set the new scene in the current stage
         currentStage.setScene(newPageScene);
         currentStage.setTitle("My Profile");
-        currentStage.show();;
+        currentStage.show();
     }
 
     public void returnpFeed(ActionEvent event) throws IOException {

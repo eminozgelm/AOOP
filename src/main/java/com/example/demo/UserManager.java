@@ -23,8 +23,8 @@ public class UserManager {
 
     // Method to check if two users are friends
     private boolean areFriends(User user1, User user2) {
-        ArrayList<Integer> user1Friends = user1.getFriendsArray();
-        ArrayList<Integer> user2Friends= user2.getFriendsArray();
+        int[] user1Friends = user1.getFriendsArray();
+        int[] user2Friends = user2.getFriendsArray();
 
         for (int id1 : user1Friends) {
             for (int id2 : user2Friends) {
