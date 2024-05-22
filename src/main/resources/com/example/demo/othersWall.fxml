@@ -79,8 +79,7 @@
                         </Label>
                         <Label fx:id="profileName" layoutX="201.0" layoutY="94.0" prefHeight="17.0" prefWidth="304.0" />
                         <TextArea fx:id="bio" editable="false" layoutX="201.0" layoutY="124.0" prefHeight="49.0" prefWidth="391.0" />
-                        <Button fx:id="friendButton" layoutX="496.0" layoutY="39.0" mnemonicParsing="false" onAction="#addFriend" prefHeight="25.0" prefWidth="95.0" text="Add Friend" />
-                        <Button fx:id="friendButton1" layoutX="496.0" layoutY="78.0" mnemonicParsing="false" onAction="#removeFriend" text="Remove Friend" />
+                        <Button fx:id="friendButton" layoutX="497.0" layoutY="82.0" mnemonicParsing="false" onAction="#addFriend" prefHeight="25.0" prefWidth="95.0" text="Add Friend" />
                      </children>
                   </Pane>
                   <ScrollPane prefHeight="364.0" prefWidth="671.0">
