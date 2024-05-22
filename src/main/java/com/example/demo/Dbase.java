@@ -147,14 +147,6 @@ public class Dbase {
             }
         }
 
-        // Example usage of UserManager
-        UserManager userManager = new UserManager();
-        User searcher = usersList.get(0); // Example: first user is the searcher
-        List<User> searchResults = userManager.searchUsers(usersList, "user", searcher);
 
-        // Print search results
-        for (User user : searchResults) {
-            System.out.println("Found user: " + user.getUsername());
-        }
     }
 }

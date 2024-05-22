@@ -24,6 +24,9 @@ public class wallController implements Initializable {
     @FXML
     private Button friendButton;
 
+
+
+
     @FXML
     private Label activeUserName;
     @FXML
@@ -50,6 +53,7 @@ public class wallController implements Initializable {
     @FXML
     private VBox postContainer;
 
+
     public wallController(){
     }
 
@@ -62,8 +66,65 @@ public class wallController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // postButton.layoutXProperty().bind(leftPane.layoutXProperty());
         // Load posts from the database
+        try {
+            updateFriendActionButton();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         loadPostsFromDatabase();
         loadUserBio();
+    }
+
+    private void updateFriendButtonOnAction() {
+        // Get the current text of the button
+        String buttonText = friendButton.getText();
+
+        // If the button text is "Remove Friend", change it to "Add Friend" and set the action to addFriend
+        if (buttonText.equals("Remove Friend")) {
+            friendButton.setText("Add Friend");
+            friendButton.setOnAction(this::addFriend);
+
+        }
+        // If the button text is "Add Friend", change it to "Remove Friend" and set the action to removeFriend
+        else if (buttonText.equals("Add Friend")) {
+            friendButton.setText("Remove Friend");
+            friendButton.setOnAction(this::removeFriend);
+        }
+    }
+
+
+    private void updateFriendActionButton() throws SQLException {
+        Connection conn = DriverManager.getConnection(DB_URL);
+        boolean areFriends = false;
+
+        int seenUserId = wallController.seenUser; // Assuming this is how you get the seen user ID
+
+        // Check if the seen user is in the authenticator's friend list
+        mainController mC = new mainController();
+        int friendsArray[] = mC.getFriendList(user.userId);
+        for (int friend : friendsArray) {
+            if (friend == seenUserId) {
+                areFriends = true;
+                break;
+            }
+        }
+
+        // Update the button text and action based on the friendship status
+        if (areFriends) {
+            friendButton.setText("Remove Friend");
+            friendButton.setOnAction(this::removeFriend);
+
+        } else {
+            friendButton.setText("Add Friend");
+            friendButton.setOnAction(this::addFriend);
+
+        }
+
+        // Close the connection after use
+        conn.close();
+
+        // Call the method to update the button action
+
     }
 
 
@@ -243,7 +304,6 @@ public class wallController implements Initializable {
                 "ELSE friend_list || ',' ||  ? END " + // Use '||' for concatenation
                 "WHERE user_id = ?";
 
-        boolean isExist = false;
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
@@ -251,30 +311,21 @@ public class wallController implements Initializable {
             int friendId = seenUser;
             int userId = user.userId;
             mainController mC = new mainController();
-            int[] friendList = mC.getFriendList(userId);
 
-            for (int friend: friendList) {
-                if(friend == friendId) {
-                    isExist = true;
-                    break;
-                }
-            }
 
-            if (!isExist) {
-                String friendIdStr = String.valueOf(friendId);
-                preparedStatement.setString(1, friendIdStr);
-                preparedStatement.setString(2, friendIdStr);
-                preparedStatement.setInt(3, userId);
+            String friendIdStr = String.valueOf(friendId);
+            preparedStatement.setString(1, friendIdStr);
+            preparedStatement.setString(2, friendIdStr);
+            preparedStatement.setInt(3, userId);
 
-                int rowsAffected = preparedStatement.executeUpdate();
-                if (rowsAffected > 0) {
-                    System.out.println("Friend added successfully.");
-                } else {
-                    System.out.println("Failed to add friend.");
-                }
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected > 0) {
+                updateFriendButtonOnAction();
+                System.out.println("Friend added successfully.");
             } else {
-                System.out.println("User already in the friend list.");
+                System.out.println("Failed to add friend.");
             }
+
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -292,49 +343,41 @@ public class wallController implements Initializable {
             mainController mC = new mainController();
             int[] friendList = mC.getFriendList(userId);
 
-            // Check if the friend is in the friend list
-            boolean isExist = false;
+
+
+
+            // Remove the friend from the list
+            List<Integer> newFriendList = new ArrayList<>();
             for (int friend : friendList) {
-                if (friend == friendId) {
-                    isExist = true;
-                    break;
+                if (friend != friendId) {
+                    newFriendList.add(friend);
                 }
             }
 
-            if (isExist) {
-                // Remove the friend from the list
-                List<Integer> newFriendList = new ArrayList<>();
-                for (int friend : friendList) {
-                    if (friend != friendId) {
-                        newFriendList.add(friend);
-                    }
+            // Convert the new friend list to the format suitable for the database
+            StringBuilder friendListStringBuilder = new StringBuilder();
+            for (int i = 0; i < newFriendList.size(); i++) {
+                friendListStringBuilder.append(newFriendList.get(i));
+                if (i < newFriendList.size() - 1) {
+                    friendListStringBuilder.append(",");
                 }
-
-                // Convert the new friend list to the format suitable for the database
-                StringBuilder friendListStringBuilder = new StringBuilder();
-                for (int i = 0; i < newFriendList.size(); i++) {
-                    friendListStringBuilder.append(newFriendList.get(i));
-                    if (i < newFriendList.size() - 1) {
-                        friendListStringBuilder.append(",");
-                    }
-                }
-                String newFriendListStr = !friendListStringBuilder.isEmpty() ? friendListStringBuilder.toString() : null;
-
-                // Update the friend list in the database
-                try (PreparedStatement preparedStatement = conn.prepareStatement(updateSql)) {
-                    preparedStatement.setString(1, newFriendListStr);
-                    preparedStatement.setInt(2, userId);
-
-                    int rowsAffected = preparedStatement.executeUpdate();
-                    if (rowsAffected > 0) {
-                        System.out.println("Friend removed successfully.");
-                    } else {
-                        System.out.println("Failed to remove friend.");
-                    }
-                }
-            } else {
-                System.out.println("You can't remove a user who isn't in your friend list.");
             }
+            String newFriendListStr = !friendListStringBuilder.isEmpty() ? friendListStringBuilder.toString() : null;
+
+            // Update the friend list in the database
+            try (PreparedStatement preparedStatement = conn.prepareStatement(updateSql)) {
+                preparedStatement.setString(1, newFriendListStr);
+                preparedStatement.setInt(2, userId);
+
+                int rowsAffected = preparedStatement.executeUpdate();
+                if (rowsAffected > 0) {
+                    updateFriendButtonOnAction();
+                    System.out.println("Friend removed successfully.");
+                } else {
+                    System.out.println("Failed to remove friend.");
+                }
+            }
+
 
         } catch (SQLException e) {
             e.printStackTrace();

@@ -294,7 +294,7 @@ public class mainController implements Initializable {
 
             // Iterate over the result set and create post components
             while (resultSet.next()) {
-                UserManager um = new UserManager();
+
                 int user_Id = resultSet.getInt("post_owner");
                 if( Arrays.asList(getFriendList(UserSession.getInstance().getUserId())).contains(user_Id)  ) {
 
