@@ -51,6 +51,36 @@ public class Dbase {
         return userId;
     }
 
+    public static int authenticateUserEmail(Connection conn, String email, String password) {
+        int userId = -1;
+        try {
+            String selectUserSQL = "SELECT user_id, password_hash FROM users WHERE email = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(selectUserSQL);
+            preparedStatement.setString(1, email);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String storedPasswordHash = resultSet.getString("password_hash");
+                // You should use a secure password verification method here, like bcrypt
+                // For simplicity, this example uses direct comparison (not recommended for production)
+                if (storedPasswordHash.equals(password)) {
+                    userId = resultSet.getInt("user_id");
+                    System.out.println("User authenticated successfully. User ID: " + userId);
+                } else {
+                    System.out.println("Authentication failed: Incorrect password.");
+                }
+            } else {
+                System.out.println("Authentication failed: User not found.");
+            }
+
+            resultSet.close();
+            preparedStatement.close();
+        } catch (SQLException e) {
+            System.err.println("Error: " + e.getMessage());
+        }
+        return userId;
+    }
+
     // Creating the users table if it doesn't exist
     public static void createUsersTable(Connection conn) {
         try {
@@ -74,7 +104,7 @@ public class Dbase {
 
     // Inserting a user into the users table
     public static void insertUser(Connection conn, String username, String email, String passwordHash,
-                                  String firstName, String lastName, String profileInfo, List<Integer> friends, boolean isHidden) {
+                                  String firstName, String lastName, String profileInfo, List<Integer> friends, int isHidden) {
         try {
             String friendListJson = new Gson().toJson(friends); // Convert friend list to JSON
             String insertUserSQL = "INSERT INTO users (username, email, password_hash, first_name, last_name, profile_info, friend_list, is_hidden) "
@@ -87,7 +117,7 @@ public class Dbase {
             preparedStatement.setString(5, lastName);
             preparedStatement.setString(6, profileInfo);
             preparedStatement.setString(7, friendListJson);
-            preparedStatement.setBoolean(8, isHidden);
+            preparedStatement.setInt(8, 0);
             preparedStatement.executeUpdate();
             preparedStatement.close();
             System.out.println("User inserted successfully.");
@@ -95,7 +125,7 @@ public class Dbase {
             // Add user to the usersList
             User user = new User(username, passwordHash, firstName, lastName, profileInfo.split(","), friends.stream().mapToInt(i -> i).toArray());
             user.setEmailAdress(email);
-            user.setHidden(isHidden);
+            user.setHidden();
             usersList.add(user);
         } catch (SQLException e) {
             System.err.println("Error: " + e.getMessage());
@@ -133,11 +163,11 @@ public class Dbase {
             createUsersTable(conn);
 
             // Step 2: Insert sample users with friend connections
-            insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", List.of(2, 3), false);
-            insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", List.of(1, 3), false);
-            insertUser(conn, "user3", "user3@example.com", "password_hash_3", "Alice", "Johnson", "Graphic Designer", List.of(1, 2), true);
-            insertUser(conn, "user4", "user4@example.com", "password_hash_4", "Bob", "Johnson", "Accountant", List.of(5), false);
-            insertUser(conn, "user5", "user5@example.com", "password_hash_5", "Emily", "Brown", "Teacher", List.of(4), true);
+            insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", List.of(2, 3), 0);
+            insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", List.of(1, 3), 0);
+            insertUser(conn, "user3", "user3@example.com", "password_hash_3", "Alice", "Johnson", "Graphic Designer", List.of(1, 2), 0);
+            insertUser(conn, "user4", "user4@example.com", "password_hash_4", "Bob", "Johnson", "Accountant", List.of(5), 0);
+            insertUser(conn, "user5", "user5@example.com", "password_hash_5", "Emily", "Brown", "Teacher", List.of(4), 1);
 
             // Step 3: Close the connection
             try {

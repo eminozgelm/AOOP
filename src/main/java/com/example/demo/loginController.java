@@ -40,7 +40,19 @@ public class loginController {
 
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             // Attempt to authenticate the user
-            int user_id= Dbase.authenticateUser(conn, userName, passWord);
+            int user_id = 0;
+            if (userName.contains("@")){
+
+                user_id= AuthenticationStrategy.EmailAuthAuthentication.authenticate(userName,passWord);
+
+            }
+            else {
+
+                user_id= AuthenticationStrategy.DatabaseAuthentication.authenticate(userName,passWord);
+            }
+
+
+
             UserSession us = UserSession.getInstance();
             us.setUserId(user_id);
             wallController wc = new wallController(us);

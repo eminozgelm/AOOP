@@ -466,6 +466,7 @@ public class mainController implements Initializable {
     private void publishPost(ActionEvent event) throws IOException {
         int userID = UserSession.getInstance().getUserId();
         String postContent = postContentTextArea.getText();
+        PostFactory.getPost(userID,postContent,-1);
         // Call method to write post data to the database
         writePostToDatabase(userID, postContent);
 

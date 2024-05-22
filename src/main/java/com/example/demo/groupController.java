@@ -131,6 +131,7 @@ public class groupController implements Initializable {
     private void publishPost(ActionEvent event) throws IOException {
         int userID = UserSession.getInstance().getUserId();
         String postContent = postContentTextArea.getText();
+
         // Call method to write post data to the database
         writePostToDatabase(1,userID, postContent);
 
@@ -398,7 +399,7 @@ public class groupController implements Initializable {
             String insertPostSQL = "INSERT INTO group_posts (group_name, group_id, owner_id, text) VALUES (?, ?, ?, ?)";
             PreparedStatement preparedStatement = conn.prepareStatement(insertPostSQL);
 
-            preparedStatement.setString(1, post.getGroupName());
+            preparedStatement.setInt(1, post.getGroupID());
             preparedStatement.setInt(2, post.getOwnerId());
             preparedStatement.setString(3, post.getText());
             preparedStatement.executeUpdate();
@@ -478,8 +479,8 @@ public class groupController implements Initializable {
                 // Step 1: Create the necessary tables if they don't exist
 
                 // Step 2: Insert sample users
-                insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", new ArrayList<>(),false);
-                insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", new ArrayList<>(),false);
+                insertUser(conn, "user1", "user1@example.com", "password_hash_1", "John", "Doe", "Software Engineer", new ArrayList<>(),0);
+                insertUser(conn, "user2", "user2@example.com", "password_hash_2", "Jane", "Smith", "Data Scientist", new ArrayList<>(),0);
 
                 // Step 3: Insert a sample group
                 Group engineersGroup = new Group("EngineersGroup", new int[]{1, 2}, new int[]{authenticatedUserId}); // Group with user IDs 1 and 2, and admin with authenticated user ID
@@ -494,8 +495,8 @@ public class groupController implements Initializable {
                 updateUserInGroup(conn, "CSGroup", 1, false, authenticatedUserId); // Remove user with ID 1 from the CSGroup
 
                 // Step 6: Create group posts
-                GroupPost post1 = new GroupPost(engineersGroup.getGroupName(), authenticatedUserId, "Hello Engineers!");
-                GroupPost post2 = new GroupPost(csGroup.getGroupName(), authenticatedUserId, "Hello CS!"); //GROUPPOSTUN GROUP ID OLARAK DEGIL ISIM OLARAK AL !!!!!!!!
+                GroupPost post1 = new GroupPost(authenticatedUserId, "Hello", engineersGroup.getGroupID());
+                GroupPost post2 = new GroupPost(authenticatedUserId, "HelloCS", csGroup.getGroupID()); //GROUPPOSTUN GROUP ID OLARAK DEGIL ISIM OLARAK AL !!!!!!!!
 
 
                 // Step 7: Insert group posts into the database

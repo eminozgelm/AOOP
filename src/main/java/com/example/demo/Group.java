@@ -3,6 +3,7 @@ package com.example.demo;
 public class Group {
     private String groupName;
     private int[] usersArray;
+    private int groupID;
 
     private int[] groupAdmins;
     public Group(String groupName, int[] usersArray, int[] groupAdmins) {
@@ -35,5 +36,11 @@ public class Group {
         this.groupAdmins = groupAdmins;
     }
 
+    public void setGroupID(int groupID) {
+        this.groupID = groupID;
+    }
 
+    public int getGroupID() {
+        return groupID;
+    }
 }
