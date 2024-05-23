@@ -26,6 +26,9 @@ public class mainController implements Initializable {
 
     private static final String DB_URL = "jdbc:sqlite:your_database_name.db";
 
+    @FXML
+    private CheckMenuItem hideUserMenuItem;
+
 
     @FXML
     private VBox postContainer1;
@@ -71,6 +74,7 @@ public class mainController implements Initializable {
         loadPostsFromDatabase();
         getFriendList(UserSession.getInstance().getUserId());
         displayUserGroups(UserSession.getInstance().getUserId());
+
     }
 
     public  int[] getFriendList(int userId) {
@@ -185,7 +189,8 @@ public class mainController implements Initializable {
 
     private ObservableList<String> searchUsers(String query) {
         ObservableList<String> results = FXCollections.observableArrayList();
-        String sql = "SELECT username FROM users WHERE username LIKE ?";
+        String sql = "SELECT username FROM users WHERE username LIKE ? AND is_hidden = 0";
+
 
         try (Connection conn = DriverManager.getConnection(DB_URL);
              PreparedStatement preparedStatement = conn.prepareStatement(sql)) {
@@ -667,6 +672,35 @@ public class mainController implements Initializable {
         newStage.setScene(newPageScene);
         newStage.setTitle("Post");
         newStage.show();
+    }
+
+
+    @FXML
+    private void handleHideUser() {
+        boolean isHidden = hideUserMenuItem.isSelected();
+        int hiddenValue = isHidden ? 1 : 0;
+
+        // Assuming you want to hide a specific user, you might need their user ID
+        int userId = wallController.user.userId; // Replace with actual user ID retrieval logic
+
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            String updateQuery = "UPDATE users SET is_hidden = ? WHERE user_id = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(updateQuery);
+            preparedStatement.setInt(1, hiddenValue);
+            preparedStatement.setInt(2, userId);
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            if (rowsUpdated > 0) {
+                String message = isHidden ? "User has been hidden from searches." : "User is now visible in searches.";
+                showAlert("Update Successful", message);
+            } else {
+                showAlert("Update Failed", "User ID not found.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert("Error", "An error occurred while updating the user status.");
+        }
     }
 
 
