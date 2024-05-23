@@ -225,6 +225,7 @@ public class groupController implements Initializable {
 
                 // Create a post component
                 TitledPane postComponent = createPostComponent(username, content);
+                postComponent.getStyleClass().add("titled-pane-modern");
 
                 // Add the post component to the postContainer
                 try {

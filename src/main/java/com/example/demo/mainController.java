@@ -370,6 +370,8 @@ public class mainController implements Initializable {
                         // Create a post component
                         TitledPane postComponent = createPostComponent(username, content);
 
+                        postComponent.getStyleClass().add("titled-pane-modern");
+
                         // Add the post component to the postContainer
                         try {
                             postContainer1.getChildren().add(postComponent);

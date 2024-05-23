@@ -5,34 +5,25 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.groupController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="900.0" stylesheets="@../../../css/group.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.groupController">
    <children>
       <SplitPane layoutX="-2.0" prefHeight="600.0" prefWidth="900.0">
          <items>
             <AnchorPane prefHeight="612.0" prefWidth="876.0">
                <children>
-                  <ScrollPane layoutX="213.0" layoutY="-2.0" prefHeight="598.0" prefWidth="683.0">
+                  <ScrollPane layoutX="213.0" layoutY="-2.0" prefHeight="672.0" prefWidth="683.0">
                      <content>
-                        <VBox fx:id="postContainer" prefHeight="595.0" prefWidth="681.0">
-                           <children>
-                              <TitledPane animated="false" text="untitled">
-                                <content>
-                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
-                                </content>
-                              </TitledPane>
-                           </children>
-                        </VBox>
+                        <VBox fx:id="postContainer" prefHeight="673.0" prefWidth="676.0" />
                      </content>
                   </ScrollPane>
-                  <AnchorPane layoutY="58.0" prefHeight="540.0" prefWidth="212.0">
+                  <AnchorPane layoutY="151.0" prefHeight="433.0" prefWidth="214.0">
                      <children>
-                        <Label layoutX="14.0" layoutY="25.0" prefHeight="17.0" prefWidth="87.0" text="Admins" />
-                        <VBox fx:id="membersArea" layoutX="16.0" layoutY="127.0" prefHeight="403.0" prefWidth="179.0">
+                        <Label layoutX="17.0" layoutY="14.0" prefHeight="17.0" prefWidth="87.0" text="Admins" />
+                        <VBox fx:id="membersArea" layoutX="15.0" layoutY="121.0" prefHeight="394.0" prefWidth="179.0">
                            <children>
                               <Label prefHeight="0.0" prefWidth="169.0" text="Group Members">
                                  <VBox.margin>
@@ -47,12 +38,12 @@
                               <VBox fx:id="admins" prefHeight="76.0" prefWidth="188.0" />
                            </content>
                         </ScrollPane>
-                        <Button fx:id="removeUserButton" layoutX="120.0" layoutY="2.0" mnemonicParsing="false" onAction="#handleRemoveButton" text="Remove User" />
-                        <Button layoutX="8.0" layoutY="2.0" mnemonicParsing="false" onAction="#handleAddButton" text="Add User" />
                      </children></AnchorPane>
                   <Text layoutX="14.0" layoutY="36.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Groups" wrappingWidth="51.373046875" />
                   <Button layoutX="164.0" layoutY="19.0" mnemonicParsing="false" onAction="#openPostWindow" text="Post" />
                   <Button layoutX="94.0" layoutY="19.0" mnemonicParsing="false" onAction="#returnFeed" text="Go Back" />
+                  <Button fx:id="addUserButton" layoutX="21.0" layoutY="128.0" mnemonicParsing="false" onAction="#handleAddButton" prefHeight="30.0" prefWidth="127.0" text="Add User" />
+                  <Button fx:id="removeUserButton" layoutX="21.0" layoutY="70.0" mnemonicParsing="false" onAction="#handleRemoveButton" text="Remove User" />
                </children>
             </AnchorPane>
          </items>
