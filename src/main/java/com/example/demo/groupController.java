@@ -671,14 +671,12 @@ public class groupController implements Initializable {
                             if (resultSet.next()) {
                                 String currentUsersArray = resultSet.getString("users_array");
 
-                                // Parse the users_array string into a list of user IDs
                                 List<Integer> usersList = Arrays.stream(currentUsersArray.replaceAll("\\[|\\]", "").split(","))
                                         .map(Integer::parseInt)
                                         .collect(Collectors.toList());
 
-                                // Remove the userIdToRemove from the list
+// Remove the userIdToRemove from the list
                                 usersList.remove(Integer.valueOf(userIdToRemove));
-
                                 // Convert the list back to a string
                                 String updatedUsersArray = usersList.toString();
 
@@ -711,6 +709,89 @@ public class groupController implements Initializable {
 
         });
     }
+
+
+    @FXML
+    public void handleAddButton(ActionEvent event) {
+        if (isAdmin()) {
+            TextInputDialog dialog = new TextInputDialog();
+            dialog.setTitle("Add Member");
+            dialog.setHeaderText("Enter the username to add:");
+            dialog.setContentText("Username:");
+
+            // Show add member dialog and get the input
+            String usernameToAdd = dialog.showAndWait().orElse(null);
+            if (usernameToAdd != null && !usernameToAdd.isEmpty()) {
+                int userIdToAdd = mainController.getUserIdByUsername(usernameToAdd);
+                if (userIdToAdd != -1) {
+                    try (Connection conn = DriverManager.getConnection(DB_URL)) {
+                        // Get the current users_array value
+                        String selectQuery = "SELECT users_array FROM groups WHERE id = ?";
+                        PreparedStatement selectStatement = conn.prepareStatement(selectQuery);
+                        selectStatement.setInt(1, selectedGroupId);
+                        ResultSet resultSet = selectStatement.executeQuery();
+
+                        if (resultSet.next()) {
+                            String currentUsersArray = resultSet.getString("users_array");
+
+                            // Trim the square brackets [] from the currentUsersArray
+                            String trimmedUsersArray = currentUsersArray.replaceAll("\\[|\\]", "").trim();
+
+                            List<Integer> usersList;
+                            // Check if the trimmed users_array string is empty
+                            if (trimmedUsersArray.isEmpty()) {
+                                usersList = new ArrayList<>(); // Initialize an empty list
+                            } else {
+                                // Convert the trimmed users_array string to a list of integers
+                                usersList = Arrays.stream(trimmedUsersArray.split(","))
+                                        .map(Integer::parseInt)
+                                        .collect(Collectors.toList());
+                            }
+
+                            // Check if the user is already in the group
+                            if (usersList.contains(userIdToAdd)) {
+                                showAlert("Error", "User " + usernameToAdd + " is already in the group.");
+                                return;
+                            }
+
+                            // Add the userIdToAdd to the list
+                            usersList.add(userIdToAdd);
+
+                            // Convert the list back to a string
+                            String updatedUsersArray = usersList.toString();
+
+                            // Update the users_array in the group_database table
+                            String updateQuery = "UPDATE groups SET users_array = ? WHERE id = ?";
+                            PreparedStatement updateStatement = conn.prepareStatement(updateQuery);
+                            updateStatement.setString(1, updatedUsersArray);
+                            updateStatement.setInt(2, selectedGroupId);
+                            updateStatement.executeUpdate();
+
+                            System.out.println("User added to the group successfully.");
+                        }
+
+                        resultSet.close();
+                        selectStatement.close();
+
+                    } catch (SQLException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    showAlert("Error", "User " + usernameToAdd + " does not exist.");
+                }
+            }
+        } else {
+            showAlert("Access Denied", "You do not have permission to add members to the group.");
+        }
+    }
+
+
+
+
+
+
+
+
 
 
     private boolean isAdmin() {

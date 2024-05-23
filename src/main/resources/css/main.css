@@ -1,0 +1,89 @@
+/* General styles */
+.root {
+    -fx-font-family: 'Arial';
+    -fx-font-size: 14px;
+    -fx-background-color: #f4f4f4;
+}
+
+.button {
+    -fx-background-color: #6200ee;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-padding: 10px 20px;
+    -fx-background-radius: 5px;
+    -fx-border-radius: 5px;
+}
+
+.button:hover {
+    -fx-background-color: #3700b3;
+}
+
+.text-field {
+    -fx-border-color: #6200ee;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+}
+
+.list-view {
+    -fx-border-color: #6200ee;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+}
+
+.vbox {
+    -fx-spacing: 10px;
+}
+
+.anchor-pane {
+    -fx-padding: 20px;
+    -fx-background-color: #ffffff;
+    -fx-border-color: #6200ee;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.menu-item {
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+}
+
+.menu-item:hover {
+    -fx-background-color: #6200ee;
+    -fx-text-fill: white;
+}
+
+.vbox .label {
+    -fx-text-fill: #6200ee;
+    -fx-font-size: 16px;
+}
+
+/* styles.css */
+
+.label-modern {
+    -fx-text-fill: #6200ee;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-background-color: #f4f4f4;
+    -fx-padding: 10px;
+    -fx-border-color: #6200ee;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-background-insets: 0;
+}
+
+.titled-pane-modern {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #6200ee;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+    -fx-padding: 10px;
+}
+
+.titled-pane-modern .title {
+    -fx-text-fill: #6200ee;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+

@@ -23,6 +23,11 @@
          <right>
             <VBox maxHeight="650.0" maxWidth="398.0" prefHeight="650.0" prefWidth="398.0" style="-fx-background-color: #2537e6;" BorderPane.alignment="CENTER">
                <children>
+                  <Text fx:id="errorText" strokeType="OUTSIDE" strokeWidth="0.0" wrappingWidth="272.0">
+                     <VBox.margin>
+                        <Insets bottom="-300.0" left="65.0" top="300.0" />
+                     </VBox.margin>
+                  </Text>
                   <TextField fx:id="userField" promptText="UserName or Email" style="-fx-background-radius: 50; -fx-padding: 10;">
                      <VBox.margin>
                         <Insets left="50.0" right="50.0" top="350.0" />
@@ -50,11 +55,6 @@
                         <Insets left="125.0" top="20.0" />
                      </VBox.margin>
                   </Button>
-                  <Text fx:id="errorText" strokeType="OUTSIDE" strokeWidth="0.0">
-                     <VBox.margin>
-                        <Insets left="190.0" top="15.0" />
-                     </VBox.margin>
-                  </Text>
                </children>
             </VBox>
          </right>

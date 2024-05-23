@@ -284,6 +284,8 @@ public class mainController implements Initializable {
                 // Create a post component
                 TitledPane postComponent = createPostComponent(username, content);
 
+                postComponent.getStyleClass().add("titled-pane-modern");
+
                 // Add the post component to the postContainer
                 try {
                     postContainer.getChildren().add(postComponent);
@@ -611,6 +613,9 @@ public class mainController implements Initializable {
                         // Check if the group has users
                         if (usersArray.length > 0) {
                             Label groupLabel = new Label(groupName);
+                            // groupLabel.getStyleClass().add("label-modern");
+
+
                             groupLabel.setOnMouseClicked(event -> {
                                 int groupId = getGroupIdByName(groupName);
                                 groupController.selectedGroupId = groupId;

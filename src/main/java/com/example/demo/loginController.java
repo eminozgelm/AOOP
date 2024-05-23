@@ -65,7 +65,7 @@ public class loginController {
 
             } else {
                 errorText.setText("Invalid username or password.");
-                errorText.setStyle("-fx-text-fill: red;");
+                errorText.setStyle("-fx-font-size: 20; -fx-fill: red;");;
             }
         } catch (SQLException e) {
             errorText.setText("Database connection error.");
