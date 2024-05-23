@@ -598,53 +598,77 @@ public class mainController implements Initializable {
             while (resultSet.next()) {
                 String groupName = resultSet.getString("group_name");
                 String usersArrayStr = resultSet.getString("users_array");
+                System.out.println(usersArrayStr);
                 String adminArrayStr = resultSet.getString("group_admins");
 
-                // Convert users_array string to an integer array
-                String[] userIdsStr = usersArrayStr.replaceAll("[\\[\\]]", "").split(",");
+                if (!usersArrayStr.equals("[]")) {
+                    String[] userIdsStr = usersArrayStr.isEmpty() ? new String[0] : usersArrayStr.replaceAll("[\\[\\]]", "").split(",");
+                    int[] usersArray = new int[userIdsStr.length];
+                    for (int i = 0; i < userIdsStr.length; i++) {
+                        usersArray[i] = Integer.parseInt(userIdsStr[i].trim());
+                    }
+                    if (Arrays.stream(usersArray).anyMatch(id -> id == userId)) {
+                        // Check if the group has users
+                        if (usersArray.length > 0) {
+                            Label groupLabel = new Label(groupName);
+                            groupLabel.setOnMouseClicked(event -> {
+                                int groupId = getGroupIdByName(groupName);
+                                groupController.selectedGroupId = groupId;
+                                try {
+                                    Parent homePage = FXMLLoader.load(getClass().getResource("groupPage.fxml"));
+                                    Scene hpScene = new Scene(homePage);
+                                    Stage appStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                                    appStage.setScene(hpScene);
+                                    appStage.show();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
 
-                // Convert string user IDs to integers
-                int[] usersArray = Arrays.stream(userIdsStr)
-                        .mapToInt(Integer::parseInt)
-                        .toArray();
-
-                String[] admIdStr = adminArrayStr.replaceAll("[\\[\\]]", "").split(",");
-
-                // Convert string user IDs to integers
-                int[] adminArray = Arrays.stream(admIdStr)
-                        .mapToInt(Integer::parseInt)
-                        .toArray();
-
-                // Check if the user ID exists in the users_array
-                if (Arrays.stream(usersArray).anyMatch(id -> id == userId) || Arrays.stream(adminArray).anyMatch(id -> id == userId)) {
-                    Label groupLabel = new Label(groupName);
-                    groupLabel.setOnMouseClicked(new EventHandler<MouseEvent>() {
-                        @Override
-                        public void handle(javafx.scene.input.MouseEvent event) {
-                            int groupId = getGroupIdByName(groupName);
-                            groupController.selectedGroupId = groupId;
-                            Parent home_page = null;
                             try {
-                                home_page = FXMLLoader.load(getClass().getResource("groupPage.fxml"));
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                                groupContainer.getChildren().add(groupLabel);
+                            } catch (NullPointerException e) {
+                                System.err.println("groupContainer is null: " + e.getMessage());
                             }
-                            Scene hp_scene = new Scene(home_page);
-                            Stage app_stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                            app_stage.setScene(hp_scene);
-                            app_stage.show();
-                            // Open a new page here
-                            ; // Pass group name as a parameter
                         }
-                    });
-                    try {
-                        groupContainer.getChildren().add(groupLabel);
-                    } catch (NullPointerException e) {
-                        System.err.println("postContainer is null: " + e.getMessage());
+                    }
+                }
+
+                if (adminArrayStr != null) {
+                    String[] admIdStr = adminArrayStr.isEmpty() ? new String[0] : adminArrayStr.replaceAll("[\\[\\]]", "").split(",");
+                    int[] adminArray = new int[admIdStr.length];
+                    for (int i = 0; i < admIdStr.length; i++) {
+                        adminArray[i] = Integer.parseInt(admIdStr[i]);
+                    }
+
+                    // Check if the user ID exists in the group_admins
+                    if (Arrays.stream(adminArray).anyMatch(id -> id == userId)) {
+                        // Check if the group has users
+                        if (adminArray.length > 0) {
+                            Label groupLabel = new Label(groupName);
+                            groupLabel.setOnMouseClicked(event -> {
+                                int groupId = getGroupIdByName(groupName);
+                                groupController.selectedGroupId = groupId;
+                                try {
+                                    Parent homePage = FXMLLoader.load(getClass().getResource("groupPage.fxml"));
+                                    Scene hpScene = new Scene(homePage);
+                                    Stage appStage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+                                    appStage.setScene(hpScene);
+                                    appStage.show();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            });
+
+                            try {
+                                groupContainer.getChildren().add(groupLabel);
+                            } catch (NullPointerException e) {
+                                System.err.println("groupContainer is null: " + e.getMessage());
+                            }
+                        }
                     }
                 }
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
