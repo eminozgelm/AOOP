@@ -51,18 +51,27 @@ public class Dbase {
         return userId;
     }
 
-    public static int authenticateUserEmail(Connection conn, String email, String password) {
-        int userId = -1;
-        try {
-            String selectUserSQL = "SELECT user_id, password_hash FROM users WHERE email = ?";
-            PreparedStatement preparedStatement = conn.prepareStatement(selectUserSQL);
-            preparedStatement.setString(1, email);
-            ResultSet resultSet = preparedStatement.executeQuery();
+    public static int authenticateUserEmail(Connection conn, String email, String password) { //TODO
+            int userId = -1;
+            PreparedStatement preparedStatement = null;
+            ResultSet resultSet = null;
 
-            if (resultSet.next()) {
-                String storedPasswordHash = resultSet.getString("password_hash");
-                // You should use a secure password verification method here, like bcrypt
-                // For simplicity, this example uses direct comparison (not recommended for production)
+            try {
+
+
+                String selectUserSQL = "SELECT user_id, password_hash FROM users WHERE email = ?";
+                preparedStatement = conn.prepareStatement(selectUserSQL);
+                preparedStatement.setString(1, email); // Correct index
+
+
+
+                resultSet = preparedStatement.executeQuery();
+
+                System.out.println(resultSet.getString("user_id"));
+
+                if (resultSet.next()) {
+                    String storedPasswordHash = resultSet.getString("password_hash");
+                    System.out.println("Password hash from DB: " + storedPasswordHash); // Debug: Check the password hash
                 if (storedPasswordHash.equals(password)) {
                     userId = resultSet.getInt("user_id");
                     System.out.println("User authenticated successfully. User ID: " + userId);
@@ -70,7 +79,7 @@ public class Dbase {
                     System.out.println("Authentication failed: Incorrect password.");
                 }
             } else {
-                System.out.println("Authentication failed: User not found.");
+                System.out.println("Authentication failed: Email not found.");
             }
 
             resultSet.close();

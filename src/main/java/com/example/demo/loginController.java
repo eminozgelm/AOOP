@@ -41,13 +41,12 @@ public class loginController {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             // Attempt to authenticate the user
             int user_id = 0;
+            System.out.println(userName);
             if (userName.contains("@")){
 
                 user_id= AuthenticationStrategy.EmailAuthAuthentication.authenticate(userName,passWord);
-
             }
             else {
-
                 user_id= AuthenticationStrategy.DatabaseAuthentication.authenticate(userName,passWord);
             }
 
