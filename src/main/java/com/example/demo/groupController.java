@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
 import java.net.URL;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.example.demo.Dbase.connect;
 import static com.example.demo.Dbase.insertUser;
@@ -31,7 +32,7 @@ public class groupController implements Initializable {
 
 
     @FXML
-    private Button removeUserButton;
+    private Button removeUserButton = new Button();
 
     @FXML
     private Button adminAdd;
@@ -96,7 +97,7 @@ public class groupController implements Initializable {
         int userId = UserSession.getInstance().userId;
         int groupId = selectedGroupId; // Implement this to get the current group ID
 
-        if (isGroupMember(userId, getGroupMembersList(groupId, false))) {
+        if (isGroupMember(userId, getGroupMembersList(groupId, false)) || isAdmin()) {
             Parent newPage = FXMLLoader.load(getClass().getResource("groupPostWrite.fxml"));
             Scene newPageScene = new Scene(newPage);
 
@@ -133,7 +134,7 @@ public class groupController implements Initializable {
         String postContent = postContentTextArea.getText();
 
         // Call method to write post data to the database
-        writePostToDatabase(1,userID, postContent);
+        writePostToDatabase(selectedGroupId,userID, postContent);
 
     }
 
@@ -170,7 +171,7 @@ public class groupController implements Initializable {
             while (resultSet.next()) {
                 String usersArray = resultSet.getString("users_array");
 
-                if (usersArray != null && !usersArray.isEmpty()) {
+                if (!usersArray.equals("[]") && !usersArray.isEmpty()) {
                     groupMembers = convertStringToArray(usersArray);
                 } else {
                     System.out.println("Group has no members listed.");
@@ -181,7 +182,7 @@ public class groupController implements Initializable {
                 }
 
                 for (int memberId : groupMembers) {
-                    Label memberLabel = new Label("Member Name: " + fetchUsernameById(conn, memberId));
+                    Label memberLabel = new Label("Member Name:" + fetchUsernameById(conn, memberId));
                     try {
                         membersArea.getChildren().add(memberLabel);
                     } catch (NullPointerException e) {
@@ -280,8 +281,11 @@ public class groupController implements Initializable {
     // Inserting a group into the groups table
     public static void insertGroup(Connection conn, Group group) {
         try {
+            // Convert users array and admins array to JSON strings
             String usersArrayJson = new Gson().toJson(group.getUsersArray());
             String groupAdminsJson = new Gson().toJson(group.getGroupAdmins());
+
+            // Insert the group into the database
             String insertGroupSQL = "INSERT INTO groups (group_name, users_array, group_admins) VALUES (?, ?, ?)";
             PreparedStatement preparedStatement = conn.prepareStatement(insertGroupSQL);
             preparedStatement.setString(1, group.getGroupName());
@@ -294,6 +298,7 @@ public class groupController implements Initializable {
             System.err.println("Error: " + e.getMessage());
         }
     }
+
 
     // Removing a group from the groups table
     public static void removeGroup(Connection conn, String groupName) {
@@ -322,11 +327,12 @@ public class groupController implements Initializable {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 String name = resultSet.getString("group_name");
-                String usersArrayJson = resultSet.getString("users_array");
-                String groupAdminsJson = resultSet.getString("group_admins");
+
+                // Parse users array and group admins array from JSON strings
                 Type arrayType = new TypeToken<int[]>() {}.getType();
-                int[] usersArray = new Gson().fromJson(usersArrayJson, arrayType);
-                int[] groupAdmins = new Gson().fromJson(groupAdminsJson, arrayType);
+                int[] usersArray = new Gson().fromJson(resultSet.getString("users_array"), arrayType);
+                int[] groupAdmins = new Gson().fromJson(resultSet.getString("group_admins"), arrayType);
+
                 resultSet.close();
                 preparedStatement.close();
                 return new Group(name, usersArray, groupAdmins);
@@ -336,6 +342,7 @@ public class groupController implements Initializable {
         }
         return null;
     }
+
 
     // Update a user in a group (add or remove)
     public static void updateUserInGroup(Connection conn, String groupName, int userId, boolean add, int authenticatedUserId) {
@@ -454,13 +461,10 @@ public class groupController implements Initializable {
         }
     }
     public static int[] convertStringToArray(String input) {
-        // Remove square brackets
-        input = input.replaceAll("\\[", "").replaceAll("\\]", "");
+        // Remove square brackets and split the string by commas
+        String[] stringArray = input.replaceAll("[\\[\\]]", "").trim().split(",");
 
-        // Split the string by commas
-        String[] stringArray = input.split(",");
-
-        // Convert the string array to an int array
+        // Convert the string array to an int array, trimming each element
         int[] intArray = new int[stringArray.length];
         for (int i = 0; i < stringArray.length; i++) {
             intArray[i] = Integer.parseInt(stringArray[i].trim());
@@ -468,6 +472,8 @@ public class groupController implements Initializable {
 
         return intArray;
     }
+
+
 
     public static void main(String[] args) {
         // Assume user is authenticated and their ID is set in UserSession
@@ -664,11 +670,17 @@ public class groupController implements Initializable {
 
                             if (resultSet.next()) {
                                 String currentUsersArray = resultSet.getString("users_array");
-                                // Remove the userId from the users_array
-                                String updatedUsersArray = currentUsersArray
-                                        .replaceAll("\\[" + userIdToRemove + ",", "") // Remove if at the beginning
-                                        .replaceAll("," + userIdToRemove + ",", ",") // Remove if in the middle
-                                        .replaceAll("," + userIdToRemove + "\\]", "]"); // Remove if at the end
+
+                                // Parse the users_array string into a list of user IDs
+                                List<Integer> usersList = Arrays.stream(currentUsersArray.replaceAll("\\[|\\]", "").split(","))
+                                        .map(Integer::parseInt)
+                                        .collect(Collectors.toList());
+
+                                // Remove the userIdToRemove from the list
+                                usersList.remove(Integer.valueOf(userIdToRemove));
+
+                                // Convert the list back to a string
+                                String updatedUsersArray = usersList.toString();
 
                                 // Update the users_array in the group_database table
                                 String updateQuery = "UPDATE groups SET users_array = ? WHERE id = ?";
@@ -680,6 +692,7 @@ public class groupController implements Initializable {
                                 System.out.println("User deleted from the group successfully.");
                             }
 
+
                             resultSet.close();
                             selectStatement.close();
 
@@ -687,17 +700,18 @@ public class groupController implements Initializable {
                             e.printStackTrace();
                         }
                     }
-                        // Update database or perform any other necessary action
-                        showAlert("User Removed", "User " + usernameToRemove + " has been removed from the group.");
-                    } else {
-                        showAlert("User Not Found", "User " + usernameToRemove + " is not in the group.");
-                    }
-                }  else {
+                    // Update database or perform any other necessary action
+                    showAlert("User Removed", "User " + usernameToRemove + " has been removed from the group.");
+                } else {
+                    showAlert("User Not Found", "User " + usernameToRemove + " is not in the group.");
+                }
+            }  else {
                 showAlert("Access Denied", "You do not have permission to remove users from the group.");
             }
 
         });
     }
+
 
     private boolean isAdmin() {
             try (Connection conn = DriverManager.getConnection(DB_URL)) {
